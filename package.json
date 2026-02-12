@@ -1,7 +1,9 @@
 {
-  "name": "golfexcusegenerator",
+  "name": "app-golfexcuse",
   "version": "1.0.0",
+  "description": "Golf Excuse Generator — random golf excuses in one tap. React Native (Expo). No account, no tracking.",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "expo start",
     "start:dev": "CI=false expo start",
@@ -13,7 +15,6 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~54.0.33",
     "expo-clipboard": "~8.0.8",
-    "expo-font": "~14.0.11",
     "expo-status-bar": "~3.0.9",
     "expo-store-review": "~9.0.9",
     "expo-updates": "~29.0.16",
@@ -21,5 +22,20 @@
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0"
   },
-  "private": true
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dotsystemsdevs/app-golfexcuse.git"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "golf",
+    "mobile-app",
+    "ios",
+    "android",
+    "javascript",
+    "dot-systems"
+  ],
+  "author": "Dot Systems",
+  "license": "MIT"
 }

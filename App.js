@@ -8,6 +8,7 @@ import {
   Animated,
   Image,
   Linking,
+  AccessibilityInfo,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,89 +17,82 @@ import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import * as StoreReview from 'expo-store-review';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  CONFIG,
+  QUICK_OPTIONS,
+  PLACEHOLDER,
+  LOADING_MESSAGES,
+  SPACING,
+  RADIUS,
+  FONT,
+  PALETTE,
+  LAYOUT,
+} from './src/constants';
+import { pickRandom } from './src/utils';
 import { EXCUSES } from './src/excuses';
-
-const REVIEW_PROMPT_AFTER_GENERATES = 3;
-const STORAGE_KEY_ASKED_REVIEW = 'golf_excuse_asked_review';
-const LEGAL_BASE_URL = 'https://dotsystemsdevs.github.io/app-legal-docs/golf-excuse-generator';
-
-// Design tokens – spacing, radius, typography
-const SPACING = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 };
-const RADIUS = { sm: 12, md: 16, lg: 20, xl: 24, full: 9999 };
-const FONT = { label: 15, body: 17, bodyLg: 18, subtitle: 16, title: 26, btn: 23 };
-
-// Färgpalett – matchar logotypen: mörk/mittgrön, kepsgrön, gul accent (Excuse), golfboll vit/skugga
-const PALETTE = {
-  bg: '#4F755E',
-  surface: '#2F5E3C',
-  border: '#5F8E73',
-  accent: '#E8B923',
-  cta: '#E8B923',
-  ctaBorder: '#F5C542',
-  ctaText: '#111111',
-  text: '#E6E6E6',
-  textMuted: '#CFCFCF',
-  shadow: '#111111',
-};
-
-const QUICK_OPTIONS = ['Windy', 'Rain', 'Cold', 'Hot'];
-const PLACEHOLDER = 'Tap "Generate Excuse" below to get one.';
-const LOADING_MESSAGES = [
-  'Generating…',
-  'Loading…',
-  'One moment…',
-  'Preparing your excuse…',
-  'Please wait…',
-  'Almost there…',
-];
-const GENERATE_DELAY_MS = 1100;
-const FADE_DURATION_MS = 280;
-const COPY_RESET_MS = 1800;
-
-function pickRandom() {
-  return EXCUSES[Math.floor(Math.random() * EXCUSES.length)];
-}
-
-function pickLoadingMessage() {
-  return LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
-}
 
 export default function App() {
   const [excuse, setExcuse] = useState(null);
   const [quickOption, setQuickOption] = useState(null);
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [loadingMsg, setLoadingMsg] = useState(LOADING_MESSAGES[0]);
+  const [loadingMsg, setLoadingMsg] = useState(() => LOADING_MESSAGES?.[0] ?? 'Loading…');
   const [generateCount, setGenerateCount] = useState(0);
   const [showReviewPrompt, setShowReviewPrompt] = useState(false);
   const [hasAskedReview, setHasAskedReview] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [updateDownloading, setUpdateDownloading] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [isAppReady, setIsAppReady] = useState(false);
   const loadingOpacity = useRef(new Animated.Value(1)).current;
+  const splashOpacity = useRef(new Animated.Value(0.5)).current;
   const generateTimeoutRef = useRef(null);
   const copyTimeoutRef = useRef(null);
 
+  // Inledande laddningsskärm: visa minst SPLASH_MIN_MS, sedan visa huvudvyn
+  useEffect(() => {
+    const minMs = typeof CONFIG.SPLASH_MIN_MS === 'number' ? CONFIG.SPLASH_MIN_MS : 1000;
+    const t = setTimeout(() => setIsAppReady(true), minMs);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Pulsanimation på laddningsskärmens indikator (stoppas när isAppReady)
+  useEffect(() => {
+    if (isAppReady) return;
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(splashOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(splashOpacity, { toValue: 0.4, duration: 500, useNativeDriver: true }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [isAppReady, splashOpacity]);
+
+  // Läs om vi redan frågat om betyg (AsyncStorage)
   useEffect(() => {
     (async () => {
       try {
-        const asked = await AsyncStorage.getItem(STORAGE_KEY_ASKED_REVIEW);
+        const key = CONFIG.STORAGE_KEY_ASKED_REVIEW;
+        if (!key || typeof key !== 'string') return;
+        const asked = await AsyncStorage.getItem(key);
         if (asked === 'true') setHasAskedReview(true);
       } catch (_) {}
     })();
   }, []);
 
+  // Kontrollera om det finns en ny version (Expo Updates; hoppa över i __DEV__)
   useEffect(() => {
-    if (!__DEV__) {
-      (async () => {
-        try {
-          const result = await Updates.checkForUpdateAsync();
-          if (result?.isAvailable) setUpdateAvailable(true);
-        } catch (_) {}
-      })();
-    }
+    if (typeof __DEV__ !== 'undefined' && __DEV__) return;
+    (async () => {
+      try {
+        const result = await Updates.checkForUpdateAsync();
+        if (result?.isAvailable) setUpdateAvailable(true);
+      } catch (_) {}
+    })();
   }, []);
 
+  // Städa timeouts vid unmount
   useEffect(() => {
     return () => {
       if (generateTimeoutRef.current) clearTimeout(generateTimeoutRef.current);
@@ -106,30 +100,37 @@ export default function App() {
     };
   }, []);
 
+  // Respektera systeminställning för reduce motion (mindre animationer)
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled?.().then(setReduceMotion).catch(() => {});
+  }, []);
+
   const handleGenerate = useCallback(() => {
     if (isGenerating) return;
-    setLoadingMsg(pickLoadingMessage());
+    setLoadingMsg(pickRandom(LOADING_MESSAGES) || LOADING_MESSAGES?.[0] ?? 'Loading…');
     setIsGenerating(true);
     loadingOpacity.setValue(1);
-    const newExcuse = pickRandom();
+    const newExcuse = pickRandom(EXCUSES);
+    const delayMs = typeof CONFIG.GENERATE_DELAY_MS === 'number' ? CONFIG.GENERATE_DELAY_MS : 1100;
     generateTimeoutRef.current = setTimeout(() => {
       generateTimeoutRef.current = null;
       loadingOpacity.setValue(1);
-      setExcuse(newExcuse);
+      setExcuse(newExcuse || null);
       setIsGenerating(false);
       setGenerateCount((c) => c + 1);
-      fadeAnim.setValue(1);
-    }, GENERATE_DELAY_MS);
-  }, [isGenerating, fadeAnim, loadingOpacity]);
+    }, delayMs);
+  }, [isGenerating, loadingOpacity]);
 
+  // Visa betygsprompt efter N genereringar (om vi inte redan frågat)
   useEffect(() => {
-    if (generateCount >= REVIEW_PROMPT_AFTER_GENERATES && !hasAskedReview) {
+    const threshold = typeof CONFIG.REVIEW_PROMPT_AFTER_GENERATES === 'number' ? CONFIG.REVIEW_PROMPT_AFTER_GENERATES : 3;
+    if (generateCount >= threshold && !hasAskedReview) {
       setShowReviewPrompt(true);
     }
   }, [generateCount, hasAskedReview]);
 
   useEffect(() => {
-    if (!isGenerating) return;
+    if (!isGenerating || reduceMotion) return;
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(loadingOpacity, { toValue: 0.5, duration: 400, useNativeDriver: true }),
@@ -138,7 +139,7 @@ export default function App() {
     );
     pulse.start();
     return () => pulse.stop();
-  }, [isGenerating, loadingOpacity]);
+  }, [isGenerating, loadingOpacity, reduceMotion]);
 
   const displayText = useMemo(() => {
     if (isGenerating) return null;
@@ -149,12 +150,17 @@ export default function App() {
   const handleCopy = useCallback(async () => {
     if (!displayText) return;
     if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-    await Clipboard.setStringAsync(displayText);
-    setCopied(true);
-    copyTimeoutRef.current = setTimeout(() => {
-      copyTimeoutRef.current = null;
-      setCopied(false);
-    }, COPY_RESET_MS);
+    try {
+      await Clipboard.setStringAsync(displayText);
+      setCopied(true);
+      const resetMs = typeof CONFIG.COPY_RESET_MS === 'number' ? CONFIG.COPY_RESET_MS : 1800;
+      copyTimeoutRef.current = setTimeout(() => {
+        copyTimeoutRef.current = null;
+        setCopied(false);
+      }, resetMs);
+    } catch (_) {
+      // Clipboard may be unavailable (e.g. permission)
+    }
   }, [displayText]);
 
   const handleChipPress = useCallback((opt) => {
@@ -167,7 +173,8 @@ export default function App() {
     setShowReviewPrompt(false);
     setHasAskedReview(true);
     try {
-      await AsyncStorage.setItem(STORAGE_KEY_ASKED_REVIEW, 'true');
+      const key = CONFIG.STORAGE_KEY_ASKED_REVIEW;
+      if (key && typeof key === 'string') await AsyncStorage.setItem(key, 'true');
       if (await StoreReview.isAvailableAsync()) await StoreReview.requestReview();
     } catch (_) {}
   }, []);
@@ -176,27 +183,58 @@ export default function App() {
     setShowReviewPrompt(false);
     setHasAskedReview(true);
     try {
-      await AsyncStorage.setItem(STORAGE_KEY_ASKED_REVIEW, 'true');
+      const key = CONFIG.STORAGE_KEY_ASKED_REVIEW;
+      if (key && typeof key === 'string') await AsyncStorage.setItem(key, 'true');
     } catch (_) {}
   }, []);
 
   const handleReloadUpdate = useCallback(async () => {
+    setUpdateDownloading(true);
     try {
-      setUpdateDownloading(true);
       await Updates.fetchUpdateAsync();
       await Updates.reloadAsync();
     } catch (_) {
+      // fetch or reload failed; user stays on current version
+    } finally {
       setUpdateDownloading(false);
     }
   }, []);
 
   const openPrivacy = useCallback(() => {
-    Linking.openURL(`${LEGAL_BASE_URL}/privacy.html`);
+    const url = CONFIG.LEGAL_BASE_URL?.trim();
+    if (!url) return;
+    Linking.openURL(`${url}/privacy.html`).catch(() => {});
   }, []);
 
   const openTerms = useCallback(() => {
-    Linking.openURL(`${LEGAL_BASE_URL}/terms.html`);
+    const url = CONFIG.LEGAL_BASE_URL?.trim();
+    if (!url) return;
+    Linking.openURL(`${url}/terms.html`).catch(() => {});
   }, []);
+
+  if (!isAppReady) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <View style={styles.splashRoot} accessibilityLabel="Loading Golf Excuse Generator">
+          <View style={styles.splashContent}>
+            <View style={styles.splashLogoWrap}>
+              <Image source={require('./assets/logo.png')} style={styles.splashLogo} resizeMode="cover" accessibilityLabel="Golf Excuse Generator logo" />
+            </View>
+            <Text style={styles.splashTitle}>
+              <Text style={styles.splashTitlePart}>Golf </Text>
+              <Text style={[styles.splashTitlePart, styles.splashTitleAccent]}>Excuse</Text>
+              <Text style={styles.splashTitlePart}> Generator</Text>
+            </Text>
+            <Text style={styles.splashSubtitle}>Your bad shot deserves a good excuse.</Text>
+            <View style={styles.splashLoaderWrap}>
+              <Animated.View style={[styles.splashLoaderBar, { opacity: splashOpacity }]} />
+            </View>
+          </View>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -241,26 +279,38 @@ export default function App() {
               ]}
               accessible
               accessibilityRole="none"
-              accessibilityLabel={displayText ? `Excuse: ${displayText}` : 'Excuse card. No excuse yet.'}
+              accessibilityLabel={displayText ? 'Excuse card' : 'Excuse card. No excuse yet. Tap Generate to get one.'}
             >
               {displayText && (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.cardCopyBtn,
-                    copied && styles.cardCopyBtnCopied,
-                    pressed && styles.pressed,
-                  ]}
-                  onPress={handleCopy}
-                  hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
-                  accessibilityLabel={copied ? 'Copied' : 'Copy excuse'}
-                  accessibilityRole="button"
-                >
-                  <Ionicons name={copied ? 'checkmark' : 'copy-outline'} size={26} color={PALETTE.text} />
-                </Pressable>
+                <View style={styles.cardCopyRow}>
+                  {copied && (
+                    <Text style={styles.copiedLabel} accessibilityRole="text">
+                      Copied!
+                    </Text>
+                  )}
+                  <Pressable
+                    style={({ pressed }) => [
+                      styles.cardCopyBtn,
+                      copied && styles.cardCopyBtnCopied,
+                      pressed && styles.pressed,
+                    ]}
+                    onPress={handleCopy}
+                    hitSlop={{ top: SPACING.lg, bottom: SPACING.lg, left: SPACING.lg, right: SPACING.lg }}
+                    accessibilityLabel={copied ? 'Copied to clipboard' : 'Copy excuse to clipboard'}
+                    accessibilityRole="button"
+                  >
+                    <Ionicons name={copied ? 'checkmark' : 'copy-outline'} size={26} color={PALETTE.text} />
+                  </Pressable>
+                </View>
               )}
               {isGenerating ? (
-                <Animated.Text style={[styles.cardTextLoading, { opacity: loadingOpacity }]}>
-                  {loadingMsg}
+                <Animated.Text
+                  style={[styles.cardTextLoading, { opacity: loadingOpacity }]}
+                  accessibilityRole="text"
+                  accessibilityLabel={loadingMsg ?? 'Loading…'}
+                  accessibilityState={{ busy: true }}
+                >
+                  {loadingMsg ?? 'Loading…'}
                 </Animated.Text>
               ) : (
                 <View style={styles.cardTextWrap}>
@@ -275,7 +325,7 @@ export default function App() {
           <View style={styles.bottomBlock}>
             <Text style={styles.inputLabel}>Let the weather decide (optional)</Text>
             <View style={styles.chipRow}>
-              {QUICK_OPTIONS.map((opt) => (
+              {(QUICK_OPTIONS ?? []).map((opt) => (
                 <Pressable
                   key={opt}
                   style={({ pressed }) => [
@@ -284,8 +334,8 @@ export default function App() {
                     pressed && styles.pressed,
                   ]}
                   onPress={() => handleChipPress(opt)}
-                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                  accessibilityLabel={`Weather: ${opt}. ${quickOption === opt ? 'Selected. Tap to deselect.' : 'Tap to select.'}`}
+hitSlop={{ top: SPACING.md, bottom: SPACING.md, left: SPACING.md, right: SPACING.md }}
+                    accessibilityLabel={`Weather: ${opt}. ${quickOption === opt ? 'Selected. Tap to deselect.' : 'Tap to select.'}`}
                   accessibilityRole="button"
                 >
                   <Text style={[styles.chipText, quickOption === opt && styles.chipTextActive]}>
@@ -302,14 +352,14 @@ export default function App() {
               ]}
               onPress={handleGenerate}
               disabled={isGenerating}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              accessibilityLabel="Generate a random golf excuse"
+              hitSlop={{ top: SPACING.md, bottom: SPACING.md, left: SPACING.md, right: SPACING.md }}
+              accessibilityLabel={excuse ? 'Generate another random excuse' : 'Generate a random golf excuse'}
               accessibilityHint={isGenerating ? 'Please wait' : 'Double tap to generate'}
               accessibilityRole="button"
               accessibilityState={{ disabled: isGenerating, busy: isGenerating }}
             >
               <Text style={styles.generateBtnText}>
-                {isGenerating ? '…' : 'Generate Excuse'}
+                {isGenerating ? '…' : (excuse ? 'Generate another' : 'Generate Excuse')}
               </Text>
             </Pressable>
 
@@ -349,6 +399,71 @@ export default function App() {
 
 // Design: tokens + PALETTE. Slate/teal bakgrund, coral CTA, bra kontrast.
 const styles = StyleSheet.create({
+  splashRoot: {
+    flex: 1,
+    backgroundColor: PALETTE.bg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  splashContent: {
+    alignItems: 'center',
+    paddingHorizontal: SPACING.xxl,
+  },
+  splashLogoWrap: {
+    width: 120,
+    height: 120,
+    borderRadius: RADIUS.full,
+    backgroundColor: PALETTE.surface,
+    borderWidth: 3,
+    borderColor: PALETTE.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.xl,
+    overflow: 'hidden',
+  },
+  splashLogo: {
+    width: '100%',
+    height: '100%',
+  },
+  splashTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+    textAlign: 'center',
+    textShadowColor: PALETTE.shadow,
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  splashTitlePart: {
+    color: PALETTE.text,
+  },
+  splashTitleAccent: {
+    color: PALETTE.accent,
+  },
+  splashSubtitle: {
+    fontSize: FONT.subtitle,
+    lineHeight: 24,
+    color: PALETTE.textMuted,
+    textAlign: 'center',
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.xxl,
+  },
+  splashLoaderWrap: {
+    width: 120,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: PALETTE.surface,
+    overflow: 'hidden',
+  },
+  splashLoaderBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: PALETTE.accent,
+    borderRadius: 2,
+  },
   safe: {
     flex: 1,
     backgroundColor: PALETTE.bg,
@@ -359,19 +474,19 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: SPACING.sm,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.xl,
     alignItems: 'center',
   },
   logoWrap: {
-    width: 100,
-    height: 100,
+    width: 96,
+    height: 96,
     borderRadius: RADIUS.full,
     backgroundColor: PALETTE.surface,
     borderWidth: 2,
     borderColor: PALETTE.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.lg,
     overflow: 'hidden',
   },
   logo: {
@@ -381,6 +496,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONT.title,
     fontWeight: '700',
+    letterSpacing: 0.3,
     textAlign: 'center',
     textShadowColor: PALETTE.shadow,
     textShadowOffset: { width: 0, height: 1 },
@@ -397,7 +513,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: FONT.subtitle,
-    lineHeight: 22,
+    lineHeight: 24,
     color: PALETTE.textMuted,
     textAlign: 'center',
     marginTop: SPACING.sm,
@@ -407,7 +523,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: FONT.label,
-    lineHeight: 20,
+    lineHeight: 22,
     color: PALETTE.text,
     marginBottom: SPACING.md,
     textAlign: 'center',
@@ -423,11 +539,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.xxl,
     backgroundColor: PALETTE.surface,
     borderWidth: 2,
     borderColor: PALETTE.border,
-    minHeight: 48,
+    minHeight: LAYOUT.touchTarget,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -446,23 +562,24 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   bottomBlock: {
-    paddingTop: SPACING.xl,
+    paddingTop: SPACING.xxl,
     paddingBottom: SPACING.xxxl,
   },
   generateBtn: {
     backgroundColor: PALETTE.cta,
     borderWidth: 3,
     borderColor: PALETTE.ctaBorder,
-    paddingVertical: 22,
-    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.xl,
+    borderRadius: RADIUS.xl,
     alignItems: 'center',
     marginBottom: SPACING.lg,
-    minHeight: 64,
+    minHeight: LAYOUT.btnMinHeight,
     justifyContent: 'center',
   },
   generateBtnText: {
     fontSize: FONT.btn,
     fontWeight: '700',
+    letterSpacing: 0.2,
     color: PALETTE.ctaText,
   },
   generateBtnPressed: {
@@ -473,37 +590,49 @@ const styles = StyleSheet.create({
   },
   cardScroll: {
     flex: 1,
-    minHeight: 100,
+    minHeight: LAYOUT.scrollMinHeight,
   },
   cardScrollContent: {
-    paddingVertical: SPACING.lg,
+    paddingVertical: SPACING.xl,
     flexGrow: 1,
     justifyContent: 'center',
   },
   card: {
     backgroundColor: PALETTE.surface,
     borderRadius: RADIUS.lg,
-    padding: SPACING.xxl,
+    paddingHorizontal: SPACING.xxl,
+    paddingVertical: SPACING.xxl,
     borderWidth: 2,
     borderColor: PALETTE.border,
-    minHeight: 140,
+    minHeight: LAYOUT.cardMinHeight,
     justifyContent: 'center',
     shadowColor: PALETTE.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
   cardWithCopy: {
-    paddingTop: 56,
+    paddingTop: LAYOUT.cardTopWithCopy,
   },
-  cardCopyBtn: {
+  cardCopyRow: {
     position: 'absolute',
     top: SPACING.md,
-    right: SPACING.md,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    right: SPACING.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  copiedLabel: {
+    fontSize: FONT.label,
+    fontWeight: '600',
+    color: PALETTE.accent,
+    maxWidth: 80,
+  },
+  cardCopyBtn: {
+    width: LAYOUT.touchTarget,
+    height: LAYOUT.touchTarget,
+    borderRadius: RADIUS.full,
     backgroundColor: PALETTE.surface,
     borderWidth: 2,
     borderColor: PALETTE.border,
@@ -514,20 +643,21 @@ const styles = StyleSheet.create({
     backgroundColor: PALETTE.border,
   },
   cardEmpty: {
-    backgroundColor: 'rgba(47,94,60,0.92)',
+    backgroundColor: 'rgba(47,94,60,0.88)',
   },
   cardTextWrap: {
     flex: 1,
     justifyContent: 'center',
-    minHeight: 60,
+    minHeight: LAYOUT.btnMinHeight,
+    paddingRight: LAYOUT.cardTextRight,
   },
   cardText: {
     fontSize: FONT.bodyLg,
-    lineHeight: 28,
+    lineHeight: 30,
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.4)',
+    textShadowColor: 'rgba(0,0,0,0.35)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
   },
   cardTextPlaceholder: {
     color: PALETTE.textMuted,
@@ -536,12 +666,12 @@ const styles = StyleSheet.create({
   },
   cardTextLoading: {
     fontSize: FONT.bodyLg,
-    lineHeight: 28,
+    lineHeight: 30,
     color: '#FFFFFF',
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.4)',
+    textShadowColor: 'rgba(0,0,0,0.35)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
   },
   updateBanner: {
     flexDirection: 'row',
@@ -555,7 +685,7 @@ const styles = StyleSheet.create({
     borderBottomColor: PALETTE.border,
   },
   updateBannerText: {
-    fontSize: FONT.label,
+    fontSize: FONT.caption,
     color: PALETTE.text,
   },
   updateBannerBtn: {
@@ -565,12 +695,12 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.sm,
   },
   updateBannerBtnText: {
-    fontSize: FONT.label,
+    fontSize: FONT.caption,
     fontWeight: '600',
     color: PALETTE.ctaText,
   },
   reviewPrompt: {
-    marginTop: SPACING.lg,
+    marginTop: SPACING.xl,
     marginBottom: SPACING.md,
     padding: SPACING.lg,
     backgroundColor: PALETTE.surface,
@@ -587,11 +717,11 @@ const styles = StyleSheet.create({
   reviewPromptRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: SPACING.md,
+    gap: SPACING.lg,
   },
   reviewBtn: {
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
     backgroundColor: PALETTE.cta,
     borderRadius: RADIUS.sm,
   },
@@ -601,7 +731,7 @@ const styles = StyleSheet.create({
     color: PALETTE.ctaText,
   },
   reviewBtnSecondary: {
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
   },
   reviewBtnSecondaryText: {
@@ -613,11 +743,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    marginTop: SPACING.lg,
+    marginTop: SPACING.xxl,
+    gap: SPACING.xs,
   },
   footerLink: {
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.xs,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
   },
   footerLinkText: {
     fontSize: FONT.label,

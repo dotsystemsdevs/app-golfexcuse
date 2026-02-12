@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Golf Excuse Generator",
-    "slug": "golfexcusegenerator",
+    "slug": "app-golfexcuse",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,14 +13,17 @@
       "backgroundColor": "#4F755E"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dotsystems.appgolfexcuse"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#4F755E"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.dotsystems.appgolfexcuse",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,7 +31,7 @@
     "plugins": [],
     "extra": {
       "eas": {
-        "projectId": "golf-excuse-generator"
+        "projectId": "app-golfexcuse"
       }
     }
   }

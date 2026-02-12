@@ -92,7 +92,7 @@ We may update these Terms from time to time. The "Last Updated" date above will 
 
 For questions about these Terms of Service:
 
-**Developer:** Dot Systems  
+**Developer:** Dot Systems
 **Email:** support@dotsystems.se
 
 ---

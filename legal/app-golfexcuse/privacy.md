@@ -100,7 +100,7 @@ We may update this Privacy Policy periodically. The Effective Date above will be
 
 For questions about this Privacy Policy:
 
-**Developer:** Dot Systems  
+**Developer:** Dot Systems
 **Email:** support@dotsystems.se
 
 ---
