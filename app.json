@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "golfexcusegenerator",
+    "name": "Golf Excuse Generator",
     "slug": "golfexcusegenerator",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4F755E"
     },
     "ios": {
       "supportsTablet": true
@@ -18,15 +18,18 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4F755E"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font"
-    ]
+    "plugins": [],
+    "extra": {
+      "eas": {
+        "projectId": "golf-excuse-generator"
+      }
+    }
   }
 }
