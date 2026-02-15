@@ -8,12 +8,14 @@
 
 ---
 
-## Status — allt klart och omhändertaget
+## Status
+
+**Appen är inskickad till App Store** (submitted). Build 2, version 1.0.0. När den är godkänd visas den på App Store.
 
 - **Kod:** Edge cases hanterade (tomma listor, ogiltig config, try/catch på async, Linking/Clipboard/Updates).
 - **UI:** Inledande laddningsskärm, tillgänglighet (VoiceOver/TalkBack, reduce motion), tydliga etiketter.
 - **Design:** All spacing/färger från `src/constants.js`; inga hårdkodade magiska tal i stilar.
-- **Legal:** Privacy & Terms länkade; källkod i `legal/app-golfexcuse/`, publicera via app-legal-docs.
+- **Legal:** Privacy & Terms länkade; källkod i `legal/app-golfexcuse/`, publicerade via app-legal-docs.
 - **Store:** Texter i PLAYSTORE_LISTING.md; app.json har bundleIdentifier/package/versionCode; ROADMAP med build-checklista.
 - **Underhåll:** En plats för config (`constants.js`), tydlig projektstruktur, inga oanvända dependencies.
 
@@ -51,6 +53,16 @@
 
 ## Kom igång
 
+### Screenshots
+
+| iPhone | iPad |
+|--------|------|
+| ![iPhone 1](screenshots/iphone/screenshot-1.png) | ![iPad 1](screenshots/ipad/ipad-1.png) |
+
+Fler skärmdumpar: `screenshots/iphone/` (App Store 6.5") och `screenshots/ipad/` (iPad Pro 12.9").
+
+---
+
 **Krav:** Node.js (LTS), npm. För iOS: Xcode. För Android: Android Studio.
 
 ```bash
@@ -85,6 +97,9 @@ app-golfexcuse/
 ├── ROADMAP.md          # Versioner, checklista, planerat
 ├── PLAYSTORE_LISTING.md # Store-texter (kopiera till Console/Connect)
 ├── LICENSE             # MIT
+├── screenshots/        # App Store assets
+│   ├── iphone/         # 6.5" (1242×2688)
+│   └── ipad/           # 12.9" (2064×2752)
 ├── src/
 │   ├── constants.js    # CONFIG, PALETTE, SPACING, FONT — ändra här
 │   ├── utils.js       # pickRandom (slump från array)

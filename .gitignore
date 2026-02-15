@@ -47,6 +47,3 @@ coverage/
 
 # One-off source assets (not shipped)
 Gemini_Generated_Image*.png
-
-# Resized screenshots for store (generated from screenshots/)
-app-store-screenshots/
