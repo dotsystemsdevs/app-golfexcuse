@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Golf Excuse Generator",
+    "name": "Bogey Blamer",
     "slug": "app-golfexcuse",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.dotsystems.appgolfexcuse",
-      "appStoreUrl": "https://apps.apple.com/app/id123456789"
+      "appStoreUrl": ""
     },
     "android": {
       "adaptiveIcon": {

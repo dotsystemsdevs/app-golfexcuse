@@ -8,6 +8,7 @@ import {
   Animated,
   Image,
   Linking,
+  Platform,
   AccessibilityInfo,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -28,15 +29,17 @@ import {
   PALETTE,
   LAYOUT,
 } from './src/constants';
-import { pickRandom } from './src/utils';
-import { EXCUSES } from './src/excuses';
+import { pickRandom, pickWeighted } from './src/utils';
+import { EXCUSES, CATEGORIES } from './src/excuses';
+import { Accelerometer } from 'expo-sensors';
 
-// Din logga: byt till require('./assets/min-logga.png') för egen bild (samma fil används på splash + huvudvy)
+// Din logga: byt till require('./assets/min-logga.png') för egen bild
 const LOGO = require('./assets/logo.png');
 
 export default function App() {
   const [excuse, setExcuse] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState(() => LOADING_MESSAGES?.[0] ?? 'Loading…');
   const [generateCount, setGenerateCount] = useState(0);
@@ -46,10 +49,12 @@ export default function App() {
   const [updateDownloading, setUpdateDownloading] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
   const [isAppReady, setIsAppReady] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
   const loadingOpacity = useRef(new Animated.Value(1)).current;
   const splashOpacity = useRef(new Animated.Value(0.5)).current;
   const generateTimeoutRef = useRef(null);
   const copyTimeoutRef = useRef(null);
+  const seenExcuses = useRef(new Set());
 
   // Inledande laddningsskärm: visa minst SPLASH_MIN_MS, sedan visa huvudvyn
   useEffect(() => {
@@ -107,13 +112,26 @@ export default function App() {
     AccessibilityInfo.isReduceMotionEnabled?.().then(setReduceMotion).catch(() => {});
   }, []);
 
+  // Filter excuses by active category
+  const filteredExcuses = useMemo(() => {
+    if (activeCategory === 'all') return EXCUSES;
+    return EXCUSES.filter((e) => e.tags?.includes(activeCategory));
+  }, [activeCategory]);
+
+  // Reset seen set when category changes
+  useEffect(() => {
+    seenExcuses.current.clear();
+  }, [activeCategory]);
+
   const handleGenerate = useCallback(() => {
     if (isGenerating) return;
+    if (generateTimeoutRef.current) clearTimeout(generateTimeoutRef.current);
     try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch (_) {}
     setLoadingMsg((pickRandom(LOADING_MESSAGES) || LOADING_MESSAGES?.[0]) ?? 'Loading…');
     setIsGenerating(true);
     loadingOpacity.setValue(1);
-    const newExcuse = pickRandom(EXCUSES);
+    const picked = pickWeighted(filteredExcuses, seenExcuses.current);
+    const newExcuse = typeof picked === 'string' ? picked : picked?.text ?? '';
     const delayMs = typeof CONFIG.GENERATE_DELAY_MS === 'number' ? CONFIG.GENERATE_DELAY_MS : 1100;
     generateTimeoutRef.current = setTimeout(() => {
       generateTimeoutRef.current = null;
@@ -123,7 +141,33 @@ export default function App() {
       setGenerateCount((c) => c + 1);
       try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch (_) {}
     }, delayMs);
-  }, [isGenerating, loadingOpacity]);
+  }, [isGenerating, filteredExcuses]);
+
+  // Ref to latest handleGenerate so shake listener doesn't need to re-subscribe
+  const handleGenerateRef = useRef(handleGenerate);
+  useEffect(() => { handleGenerateRef.current = handleGenerate; }, [handleGenerate]);
+
+  // Shake-to-generate: listen for accelerometer shakes
+  useEffect(() => {
+    if (!isAppReady) return;
+    let lastShake = 0;
+    let sub;
+    try {
+      Accelerometer.setUpdateInterval(CONFIG.SHAKE_INTERVAL_MS ?? 150);
+      sub = Accelerometer.addListener(({ x, y, z }) => {
+        const force = Math.sqrt(x * x + y * y + z * z);
+        const threshold = CONFIG.SHAKE_THRESHOLD ?? 2.5;
+        const cooldown = CONFIG.SHAKE_COOLDOWN_MS ?? 1500;
+        if (force > threshold && Date.now() - lastShake > cooldown) {
+          lastShake = Date.now();
+          handleGenerateRef.current();
+        }
+      });
+    } catch (_) {
+      // Accelerometer unavailable on this device
+    }
+    return () => { if (sub) sub.remove(); };
+  }, [isAppReady]);
 
   // Visa betygsprompt efter N genereringar (om vi inte redan frågat)
   useEffect(() => {
@@ -143,13 +187,9 @@ export default function App() {
     );
     pulse.start();
     return () => pulse.stop();
-  }, [isGenerating, loadingOpacity, reduceMotion]);
+  }, [isGenerating, reduceMotion]);
 
-  const displayText = useMemo(() => {
-    if (isGenerating) return null;
-    if (!excuse) return null;
-    return excuse;
-  }, [excuse, isGenerating]);
+  const displayText = !isGenerating && excuse ? excuse : null;
 
   const handleCopy = useCallback(async () => {
     if (!displayText) return;
@@ -157,15 +197,28 @@ export default function App() {
     try {
       await Clipboard.setStringAsync(displayText);
       setCopied(true);
+      setCopyFailed(false);
       const resetMs = typeof CONFIG.COPY_RESET_MS === 'number' ? CONFIG.COPY_RESET_MS : 1800;
       copyTimeoutRef.current = setTimeout(() => {
         copyTimeoutRef.current = null;
         setCopied(false);
       }, resetMs);
     } catch (_) {
-      // Clipboard may be unavailable (e.g. permission)
+      setCopyFailed(true);
+      copyTimeoutRef.current = setTimeout(() => {
+        copyTimeoutRef.current = null;
+        setCopyFailed(false);
+      }, 2000);
     }
   }, [displayText]);
+
+  const getStoreUrl = useCallback(() => {
+    const ios = CONFIG.APP_STORE_URL?.trim();
+    const android = CONFIG.PLAY_STORE_URL?.trim();
+    if (Platform.OS === 'ios' && ios) return ios;
+    if (android) return android;
+    return ios || android || '';
+  }, []);
 
   const handleRequestReview = useCallback(async () => {
     setShowReviewPrompt(false);
@@ -173,9 +226,14 @@ export default function App() {
     try {
       const key = CONFIG.STORAGE_KEY_ASKED_REVIEW;
       if (key && typeof key === 'string') await AsyncStorage.setItem(key, 'true');
-      if (await StoreReview.hasAction()) await StoreReview.requestReview();
+      if (await StoreReview.hasAction()) {
+        await StoreReview.requestReview();
+      } else {
+        const url = getStoreUrl();
+        if (url) Linking.openURL(url).catch(() => {});
+      }
     } catch (_) {}
-  }, []);
+  }, [getStoreUrl]);
 
   const handleDismissReview = useCallback(async () => {
     setShowReviewPrompt(false);
@@ -198,6 +256,12 @@ export default function App() {
     }
   }, []);
 
+  // Öppnar butikssidan direkt (footer-länk; påverkar inte auto-prompten)
+  const openStorePage = useCallback(() => {
+    const url = getStoreUrl();
+    if (url) Linking.openURL(url).catch(() => {});
+  }, [getStoreUrl]);
+
   // Öppnar officiell Privacy Policy (app-legal-docs)
   const openPrivacy = useCallback(() => {
     const url = CONFIG.LEGAL_BASE_URL?.trim();
@@ -216,17 +280,16 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <StatusBar style="light" />
-        <View style={styles.splashRoot} accessibilityLabel="Loading Golf Excuse Generator">
+        <View style={styles.splashRoot} accessibilityLabel="Loading Bogey Blamer">
           <View style={styles.splashContent}>
             <View style={styles.splashLogoWrap}>
-              <Image source={LOGO} style={styles.splashLogo} resizeMode="cover" accessibilityLabel="Golf Excuse Generator logo" />
+              <Image source={LOGO} style={styles.splashLogo} resizeMode="cover" accessibilityLabel="Bogey Blamer logo" />
             </View>
             <Text style={styles.splashTitle}>
-              <Text style={styles.splashTitlePart}>Golf </Text>
-              <Text style={[styles.splashTitlePart, styles.splashTitleAccent]}>Excuse</Text>
-              <Text style={styles.splashTitlePart}> Generator</Text>
+              <Text style={styles.splashTitlePart}>Bogey </Text>
+              <Text style={[styles.splashTitlePart, styles.splashTitleAccent]}>Blamer</Text>
             </Text>
-            <Text style={styles.splashSubtitle}>Your bad shot deserves a good excuse.</Text>
+            <Text style={styles.splashSubtitle}>Blame it on anything.</Text>
             <View style={styles.splashLoaderWrap}>
               <Animated.View style={[styles.splashLoaderBar, { opacity: splashOpacity }]} />
             </View>
@@ -255,15 +318,36 @@ export default function App() {
         <View style={styles.container}>
           <View style={styles.header}>
             <View style={styles.logoWrap}>
-              <Image source={LOGO} style={styles.logo} resizeMode="cover" accessibilityLabel="Golf Excuse Generator logo" />
+              <Image source={LOGO} style={styles.logo} resizeMode="cover" accessibilityLabel="Bogey Blamer logo" />
             </View>
             <Text style={styles.title}>
-              <Text style={styles.titlePart}>Golf </Text>
-              <Text style={[styles.titlePart, styles.titleAccent]}>Excuse</Text>
-              <Text style={styles.titlePart}> Generator</Text>
+              <Text style={styles.titlePart}>Bogey </Text>
+              <Text style={[styles.titlePart, styles.titleAccent]}>Blamer</Text>
             </Text>
-            <Text style={styles.subtitle}>Your bad shot deserves a good excuse.</Text>
+            <Text style={styles.subtitle}>Blame it on anything.</Text>
           </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.pillRow}
+            style={styles.pillScroll}
+          >
+            {CATEGORIES.map((cat) => (
+              <Pressable
+                key={cat.key}
+                style={[styles.pill, activeCategory === cat.key && styles.pillActive]}
+                onPress={() => setActiveCategory(cat.key)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: activeCategory === cat.key }}
+                accessibilityLabel={cat.label}
+              >
+                <Text style={[styles.pillText, activeCategory === cat.key && styles.pillTextActive]}>
+                  {cat.label}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
 
           <ScrollView
             style={styles.cardScroll}
@@ -271,21 +355,29 @@ export default function App() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <View
-              style={[
+            <Pressable
+              onPress={handleGenerate}
+              disabled={isGenerating}
+              style={({ pressed }) => [
                 styles.card,
                 !displayText && !isGenerating && styles.cardEmpty,
                 displayText && styles.cardWithCopy,
+                pressed && !isGenerating && styles.cardPressed,
               ]}
               accessible
-              accessibilityRole="none"
-              accessibilityLabel={displayText ? 'Excuse card' : 'Excuse card. No excuse yet. Tap Generate to get one.'}
+              accessibilityRole="button"
+              accessibilityLabel={displayText ? 'Excuse card. Tap for a new excuse.' : 'Tap to get an excuse.'}
             >
               {displayText && (
                 <View style={styles.cardCopyRow}>
                   {copied && (
                     <Text style={styles.copiedLabel} accessibilityRole="text">
                       Copied!
+                    </Text>
+                  )}
+                  {copyFailed && (
+                    <Text style={styles.copyFailedLabel} accessibilityRole="text">
+                      Could not copy
                     </Text>
                   )}
                   <Pressable
@@ -319,28 +411,11 @@ export default function App() {
                   </Text>
                 </View>
               )}
-            </View>
+            </Pressable>
           </ScrollView>
 
           <View style={styles.bottomBlock}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.generateBtn,
-                pressed && styles.generateBtnPressed,
-                isGenerating && styles.generateBtnBusy,
-              ]}
-              onPress={handleGenerate}
-              disabled={isGenerating}
-              hitSlop={{ top: SPACING.md, bottom: SPACING.md, left: SPACING.md, right: SPACING.md }}
-              accessibilityLabel={excuse ? 'Generate another random excuse' : 'Generate a random golf excuse'}
-              accessibilityHint={isGenerating ? 'Please wait' : 'Double tap to generate'}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: isGenerating, busy: isGenerating }}
-            >
-              <Text style={styles.generateBtnText}>
-                {isGenerating ? '…' : (excuse ? 'Generate another' : 'Generate Excuse')}
-              </Text>
-            </Pressable>
+            <Text style={styles.shakeHint}>Shake or tap the card for an excuse</Text>
 
             {showReviewPrompt && (
               <View style={styles.reviewPrompt}>
@@ -357,7 +432,7 @@ export default function App() {
             )}
 
             <View style={styles.footerLinks}>
-              <Pressable onPress={handleRequestReview} style={styles.footerLink}>
+              <Pressable onPress={openStorePage} style={styles.footerLink}>
                 <Text style={styles.footerLinkText}>Rate the app</Text>
               </Pressable>
               <Text style={styles.footerDot}> · </Text>
@@ -376,7 +451,7 @@ export default function App() {
   );
 }
 
-// Design: tokens + PALETTE. Slate/teal bakgrund, coral CTA, bra kontrast.
+// Design: tokens + PALETTE. Grön golf-bakgrund, guld CTA.
 const styles = StyleSheet.create({
   splashRoot: {
     flex: 1,
@@ -401,8 +476,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   splashLogo: {
-    width: '100%',
-    height: '100%',
+    width: '120%',
+    height: '120%',
   },
   splashTitle: {
     fontSize: 26,
@@ -470,8 +545,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   logo: {
-    width: '100%',
-    height: '100%',
+    width: '120%',
+    height: '120%',
   },
   title: {
     fontSize: FONT.title,
@@ -501,43 +576,34 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.88,
   },
-  inputLabel: {
-    fontSize: FONT.label,
-    lineHeight: 22,
-    color: PALETTE.text,
+  pillScroll: {
+    flexGrow: 0,
     marginBottom: SPACING.md,
-    textAlign: 'center',
   },
-  chipRow: {
+  pillRow: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'space-between',
     gap: SPACING.sm,
-    marginBottom: SPACING.xl,
+    paddingHorizontal: SPACING.xs,
   },
-  chip: {
-    flex: 1,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.xxl,
+  pill: {
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: RADIUS.full,
     backgroundColor: PALETTE.surface,
     borderWidth: 2,
     borderColor: PALETTE.border,
-    minHeight: LAYOUT.touchTarget,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  chipActive: {
-    backgroundColor: PALETTE.surface,
-    borderWidth: 3,
+  pillActive: {
     borderColor: PALETTE.accent,
+    borderWidth: 2,
+    backgroundColor: PALETTE.surface,
   },
-  chipText: {
+  pillText: {
     fontSize: FONT.label,
     fontWeight: '600',
-    color: PALETTE.text,
+    color: PALETTE.textMuted,
   },
-  chipTextActive: {
+  pillTextActive: {
     color: PALETTE.text,
     fontWeight: '700',
   },
@@ -545,28 +611,11 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.xxl,
     paddingBottom: SPACING.xxxl,
   },
-  generateBtn: {
-    backgroundColor: PALETTE.cta,
-    borderWidth: 3,
-    borderColor: PALETTE.ctaBorder,
-    paddingVertical: SPACING.xl,
-    borderRadius: RADIUS.xl,
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
-    minHeight: LAYOUT.btnMinHeight,
-    justifyContent: 'center',
-  },
-  generateBtnText: {
-    fontSize: FONT.btn,
-    fontWeight: '700',
-    letterSpacing: 0.2,
-    color: PALETTE.ctaText,
-  },
-  generateBtnPressed: {
-    opacity: 0.85,
-  },
-  generateBtnBusy: {
-    opacity: 0.95,
+  shakeHint: {
+    fontSize: FONT.caption,
+    color: PALETTE.textMuted,
+    textAlign: 'center',
+    marginBottom: SPACING.sm,
   },
   cardScroll: {
     flex: 1,
@@ -609,6 +658,12 @@ const styles = StyleSheet.create({
     color: PALETTE.accent,
     maxWidth: 80,
   },
+  copyFailedLabel: {
+    fontSize: FONT.caption,
+    fontWeight: '600',
+    color: PALETTE.error,
+    maxWidth: 120,
+  },
   cardCopyBtn: {
     width: 36,
     height: 36,
@@ -623,7 +678,11 @@ const styles = StyleSheet.create({
     backgroundColor: PALETTE.border,
   },
   cardEmpty: {
-    backgroundColor: 'rgba(47,94,60,0.88)',
+    backgroundColor: PALETTE.cardEmptyBg,
+  },
+  cardPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
   },
   cardTextWrap: {
     flex: 1,
@@ -634,7 +693,7 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: FONT.bodyLg,
     lineHeight: 30,
-    color: '#FFFFFF',
+    color: PALETTE.text,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.35)',
     textShadowOffset: { width: 0, height: 1 },
@@ -648,7 +707,7 @@ const styles = StyleSheet.create({
   cardTextLoading: {
     fontSize: FONT.bodyLg,
     lineHeight: 30,
-    color: '#FFFFFF',
+    color: PALETTE.text,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.35)',
     textShadowOffset: { width: 0, height: 1 },

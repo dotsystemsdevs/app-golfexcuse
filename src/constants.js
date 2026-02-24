@@ -8,17 +8,20 @@
  */
 
 export const CONFIG = {
-  REVIEW_PROMPT_AFTER_GENERATES: 3,       // Visa betygsprompt efter N genereringar
+  REVIEW_PROMPT_AFTER_GENERATES: 10,      // Visa betygsprompt efter N genereringar
   STORAGE_KEY_ASKED_REVIEW: 'app_golfexcuse_asked_review', // Endast lokalt; ingen transmission
   LEGAL_BASE_URL: 'https://dotsystemsdevs.github.io/app-legal-docs/app-golfexcuse', // Privacy & Terms (app-legal-docs)
+  PLAY_STORE_URL: 'https://play.google.com/store/apps/details?id=com.dotsystems.appgolfexcuse',
+  APP_STORE_URL: '',                       // Fyll i när iOS-appen är publicerad
   GENERATE_DELAY_MS: 1100,                // Fördröjning innan ursäkt visas (ms)
   COPY_RESET_MS: 1800,                   // Hur länge "Copied!" visas (ms)
   SPLASH_MIN_MS: 1000,                   // Minsta tid inledande laddningsskärm (ms)
+  SHAKE_THRESHOLD: 2.5,                  // Accelerometer g-force för att trigga shake
+  SHAKE_COOLDOWN_MS: 1500,               // Minsta tid mellan shakes (ms)
+  SHAKE_INTERVAL_MS: 150,                // Accelerometer uppdateringsintervall (ms)
 };
 
-export const QUICK_OPTIONS = [];
-
-export const PLACEHOLDER = 'Tap the yellow button below to get your first excuse.';
+export const PLACEHOLDER = 'Shake or tap to get your first excuse.';
 
 export const LOADING_MESSAGES = [
   'Generating…',
@@ -31,14 +34,11 @@ export const LOADING_MESSAGES = [
 
 export const SPACING = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 };
 export const RADIUS = { sm: 12, md: 16, lg: 20, xl: 24, xxl: 28, full: 9999 };
-export const FONT = { caption: 14, label: 15, body: 17, bodyLg: 19, subtitle: 17, title: 28, btn: 24 };
+export const FONT = { caption: 14, label: 15, body: 17, bodyLg: 19, subtitle: 17, title: 28 };
 export const LAYOUT = {
-  touchTarget: 48,
   btnMinHeight: 64,
   scrollMinHeight: 100,
   cardMinHeight: 152,
-  cardTopWithCopy: 58,
-  cardTextRight: 60,
 };
 
 export const PALETTE = {
@@ -47,9 +47,10 @@ export const PALETTE = {
   border: '#5F8E73',
   accent: '#E8B923',
   cta: '#E8B923',
-  ctaBorder: '#F5C542',
   ctaText: '#111111',
   text: '#E6E6E6',
-  textMuted: '#CFCFCF',
+  textMuted: '#D9D9D9',
+  cardEmptyBg: 'rgba(47,94,60,0.88)',
+  error: '#E87C7C',
   shadow: '#111111',
 };
