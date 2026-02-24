@@ -1,6 +1,6 @@
 # app-golfexcuse
 
-**Golf Excuse Generator** — mobilapp som ger slumpmässiga golfursäkter i en knapptryckning. Välj valfritt väder (Windy, Rain, Cold, Hot), tryck **Generate Excuse**, kopiera och dela. Ingen konto, ingen spårning. React Native (Expo).
+**Golf Excuse Generator** — mobilapp som ger slumpmässiga golfursäkter i en knapptryckning. Tryck **Generate Excuse**, kopiera och dela. Ingen konto, ingen spårning. React Native (Expo).
 
 **Version:** 1.0.0 · **Repo:** [dotsystemsdevs/app-golfexcuse](https://github.com/dotsystemsdevs/app-golfexcuse)
 
@@ -8,12 +8,14 @@
 
 ---
 
-## Status — allt klart och omhändertaget
+## Status
+
+**Appen är inskickad till App Store** (submitted). Build 2, version 1.0.0. När den är godkänd visas den på App Store.
 
 - **Kod:** Edge cases hanterade (tomma listor, ogiltig config, try/catch på async, Linking/Clipboard/Updates).
 - **UI:** Inledande laddningsskärm, tillgänglighet (VoiceOver/TalkBack, reduce motion), tydliga etiketter.
 - **Design:** All spacing/färger från `src/constants.js`; inga hårdkodade magiska tal i stilar.
-- **Legal:** Privacy & Terms länkade; källkod i `legal/app-golfexcuse/`, publicera via app-legal-docs.
+- **Legal:** Privacy & Terms länkade; källkod i `legal/app-golfexcuse/`, publicerade via app-legal-docs.
 - **Store:** Texter i PLAYSTORE_LISTING.md; app.json har bundleIdentifier/package/versionCode; ROADMAP med build-checklista.
 - **Underhåll:** En plats för config (`constants.js`), tydlig projektstruktur, inga oanvända dependencies.
 
@@ -24,6 +26,7 @@
 | Fil | Syfte |
 |-----|--------|
 | [ROADMAP.md](ROADMAP.md) | Versioner, released, build checklist, planerat |
+| [IOS_APP_STORE_CHECKLIST.md](IOS_APP_STORE_CHECKLIST.md) | iOS App Store — full kontroll före submission |
 | [PLAYSTORE_LISTING.md](PLAYSTORE_LISTING.md) | Texter att kopiera till Play Store & App Store |
 | [app-legal-docs-app-golfexcuse/](app-legal-docs-app-golfexcuse/) | Privacy & Terms (kopiera till [app-legal-docs](https://github.com/dotsystemsdevs/app-legal-docs) under mappen `app-golfexcuse`) |
 
@@ -32,7 +35,6 @@
 ## Vad appen gör
 
 - **Slumpmässig ursäkt** — ett tryck, 150+ alternativ
-- **Väder (valfritt)** — Windy, Rain, Cold, Hot som prefix
 - **Kopiera** — en tryckning, feedback "Copied!"
 - **Betyg** — uppmaning efter 3 genereringar; länkar till Privacy & Terms i sidfoten
 - **Uppdateringar** — in-app kontroll (Expo Updates)
@@ -50,6 +52,16 @@
 ---
 
 ## Kom igång
+
+### Screenshots
+
+| iPhone | iPad |
+|--------|------|
+| ![iPhone 1](screenshots/iphone/screenshot-1.png) | ![iPad 1](screenshots/ipad/ipad-1.png) |
+
+Fler skärmdumpar: `screenshots/iphone/` (App Store 6.5") och `screenshots/ipad/` (iPad Pro 12.9").
+
+---
 
 **Krav:** Node.js (LTS), npm. För iOS: Xcode. För Android: Android Studio.
 
@@ -85,6 +97,9 @@ app-golfexcuse/
 ├── ROADMAP.md          # Versioner, checklista, planerat
 ├── PLAYSTORE_LISTING.md # Store-texter (kopiera till Console/Connect)
 ├── LICENSE             # MIT
+├── screenshots/        # App Store assets
+│   ├── iphone/         # 6.5" (1242×2688)
+│   └── ipad/           # 12.9" (2064×2752)
 ├── src/
 │   ├── constants.js    # CONFIG, PALETTE, SPACING, FONT — ändra här
 │   ├── utils.js       # pickRandom (slump från array)
@@ -98,8 +113,7 @@ app-golfexcuse/
 └── legal/
     └── app-golfexcuse/   # Privacy & Terms (publicera via app-legal-docs)
         ├── privacy.md
-        ├── terms.md
-        └── README.md
+        └── terms.md
 ```
 
 ---

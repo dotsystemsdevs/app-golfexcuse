@@ -15,7 +15,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.dotsystems.appgolfexcuse",
-      "appStoreUrl": ""
+      "appStoreUrl": "",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +37,7 @@
     "plugins": [],
     "extra": {
       "eas": {
-        "projectId": "app-golfexcuse"
+        "projectId": "817260d8-54b3-4c01-9523-f4b328c72313"
       }
     }
   }

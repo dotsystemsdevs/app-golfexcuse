@@ -21,10 +21,10 @@ Golf Excuse Generator
 **Gräns:** 80 tecken. Används i sök och listning.
 
 ```
-Random golf excuses in one tap. Add weather, copy & share. No account, no ads.
+Random golf excuses in one tap. Copy & share. No account, no ads.
 ```
 
-**Tecken:** 73
+**Tecken:** 60
 
 ---
 
@@ -38,10 +38,9 @@ Kopiera hela blocket nedan (från "Your bad shot" till "...Terms in the app.").
 ```
 Your bad shot deserves a good excuse.
 
-Golf Excuse Generator gives you 150+ random, funny excuses — one tap. Blame the wind, the rain, the guy three holes over, or your wife's honey-do list. Perfect for the 19th hole or when you need to explain that triple bogey.
+Golf Excuse Generator gives you 150+ random, funny excuses — one tap. Blame the wind, the rain, the guy three holes over, or the maintenance staff. Perfect for the 19th hole or when you need to explain that triple bogey.
 
 ► One-tap random excuse
-► Optional weather prefix: Windy, Rain, Cold, Hot
 ► Copy to clipboard and share with one tap
 ► No account, no sign-up, no ads
 ► Works offline — everything runs on your device
@@ -80,6 +79,8 @@ Ej tillämpligt — appen har ingen notifikationsfunktion. All funktion sker nä
 | App name | Main store listing → App name | App Information → Name |
 | Short description | Main store listing → Short description (80 tecken) | — (finns inte) |
 | Long description | Main store listing → Full description | App Information → Description |
+| Promotional Text | — | App Store → Promotional Text (170 tecken) |
+| Keywords | — | App Store → Keywords (100 tecken) |
 
 ---
 

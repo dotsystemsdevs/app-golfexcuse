@@ -33,7 +33,6 @@ import { pickRandom, pickWeighted } from './src/utils';
 import { EXCUSES, CATEGORIES } from './src/excuses';
 import { Accelerometer } from 'expo-sensors';
 
-// Din logga: byt till require('./assets/min-logga.png') för egen bild
 const LOGO = require('./assets/logo.png');
 
 export default function App() {
@@ -56,14 +55,12 @@ export default function App() {
   const copyTimeoutRef = useRef(null);
   const seenExcuses = useRef(new Set());
 
-  // Inledande laddningsskärm: visa minst SPLASH_MIN_MS, sedan visa huvudvyn
   useEffect(() => {
     const minMs = typeof CONFIG.SPLASH_MIN_MS === 'number' ? CONFIG.SPLASH_MIN_MS : 1000;
     const t = setTimeout(() => setIsAppReady(true), minMs);
     return () => clearTimeout(t);
   }, []);
 
-  // Pulsanimation på laddningsskärmens indikator (stoppas när isAppReady)
   useEffect(() => {
     if (isAppReady) return;
     const pulse = Animated.loop(
@@ -76,7 +73,6 @@ export default function App() {
     return () => pulse.stop();
   }, [isAppReady, splashOpacity]);
 
-  // Läs om vi redan frågat om betyg (AsyncStorage)
   useEffect(() => {
     (async () => {
       try {
@@ -88,7 +84,6 @@ export default function App() {
     })();
   }, []);
 
-  // Kontrollera om det finns en ny version (Expo Updates; hoppa över i __DEV__)
   useEffect(() => {
     if (typeof __DEV__ !== 'undefined' && __DEV__) return;
     (async () => {
@@ -99,7 +94,6 @@ export default function App() {
     })();
   }, []);
 
-  // Städa timeouts vid unmount
   useEffect(() => {
     return () => {
       if (generateTimeoutRef.current) clearTimeout(generateTimeoutRef.current);
@@ -107,7 +101,6 @@ export default function App() {
     };
   }, []);
 
-  // Respektera systeminställning för reduce motion (mindre animationer)
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled?.().then(setReduceMotion).catch(() => {});
   }, []);
@@ -169,7 +162,6 @@ export default function App() {
     return () => { if (sub) sub.remove(); };
   }, [isAppReady]);
 
-  // Visa betygsprompt efter N genereringar (om vi inte redan frågat)
   useEffect(() => {
     const threshold = typeof CONFIG.REVIEW_PROMPT_AFTER_GENERATES === 'number' ? CONFIG.REVIEW_PROMPT_AFTER_GENERATES : 3;
     if (generateCount >= threshold && !hasAskedReview) {
@@ -249,27 +241,22 @@ export default function App() {
     try {
       await Updates.fetchUpdateAsync();
       await Updates.reloadAsync();
-    } catch (_) {
-      // fetch or reload failed; user stays on current version
-    } finally {
+    } catch (_) {} finally {
       setUpdateDownloading(false);
     }
   }, []);
 
-  // Öppnar butikssidan direkt (footer-länk; påverkar inte auto-prompten)
   const openStorePage = useCallback(() => {
     const url = getStoreUrl();
     if (url) Linking.openURL(url).catch(() => {});
   }, [getStoreUrl]);
 
-  // Öppnar officiell Privacy Policy (app-legal-docs)
   const openPrivacy = useCallback(() => {
     const url = CONFIG.LEGAL_BASE_URL?.trim();
     if (!url) return;
     Linking.openURL(`${url}/privacy.html`).catch(() => {});
   }, []);
 
-  // Öppnar officiella Terms of Service (app-legal-docs)
   const openTerms = useCallback(() => {
     const url = CONFIG.LEGAL_BASE_URL?.trim();
     if (!url) return;
@@ -451,7 +438,6 @@ export default function App() {
   );
 }
 
-// Design: tokens + PALETTE. Grön golf-bakgrund, guld CTA.
 const styles = StyleSheet.create({
   splashRoot: {
     flex: 1,

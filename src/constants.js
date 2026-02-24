@@ -1,24 +1,20 @@
 /**
  * App configuration and design tokens.
- * Single source of truth: URLs, storage keys, timing, layout.
- * Do not duplicate these values in App.js or elsewhere.
- *
- * Rättsligt: LEGAL_BASE_URL ska peka på publicerade Privacy & Terms (app-legal-docs).
- * STORAGE_KEY_ASKED_REVIEW används endast lokalt (AsyncStorage); ingen data skickas.
+ * Single source of truth for URLs, storage keys, timing, layout.
  */
 
 export const CONFIG = {
-  REVIEW_PROMPT_AFTER_GENERATES: 10,      // Visa betygsprompt efter N genereringar
-  STORAGE_KEY_ASKED_REVIEW: 'app_golfexcuse_asked_review', // Endast lokalt; ingen transmission
-  LEGAL_BASE_URL: 'https://dotsystemsdevs.github.io/app-legal-docs/app-golfexcuse', // Privacy & Terms (app-legal-docs)
+  REVIEW_PROMPT_AFTER_GENERATES: 10,
+  STORAGE_KEY_ASKED_REVIEW: 'app_golfexcuse_asked_review',
+  LEGAL_BASE_URL: 'https://dotsystemsdevs.github.io/app-legal-docs/app-golfexcuse',
   PLAY_STORE_URL: 'https://play.google.com/store/apps/details?id=com.dotsystems.appgolfexcuse',
-  APP_STORE_URL: '',                       // Fyll i när iOS-appen är publicerad
-  GENERATE_DELAY_MS: 1100,                // Fördröjning innan ursäkt visas (ms)
-  COPY_RESET_MS: 1800,                   // Hur länge "Copied!" visas (ms)
-  SPLASH_MIN_MS: 1000,                   // Minsta tid inledande laddningsskärm (ms)
-  SHAKE_THRESHOLD: 2.5,                  // Accelerometer g-force för att trigga shake
-  SHAKE_COOLDOWN_MS: 1500,               // Minsta tid mellan shakes (ms)
-  SHAKE_INTERVAL_MS: 150,                // Accelerometer uppdateringsintervall (ms)
+  APP_STORE_URL: '',
+  GENERATE_DELAY_MS: 1100,
+  COPY_RESET_MS: 1800,
+  SPLASH_MIN_MS: 1000,
+  SHAKE_THRESHOLD: 2.5,
+  SHAKE_COOLDOWN_MS: 1500,
+  SHAKE_INTERVAL_MS: 150,
 };
 
 export const PLACEHOLDER = 'Shake or tap to get your first excuse.';

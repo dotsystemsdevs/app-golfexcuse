@@ -15,7 +15,6 @@ Första release (App Store & Google Play).
 | Ändring | Typ |
 |--------|------|
 | Slumpmässig golfursäkt från 150+ alternativ | Feature |
-| Väljbar väder-prefix (Windy, Rain, Cold, Hot) | Feature |
 | Kopiera till urklipp med "Copied!"-feedback | Feature |
 | Uppmaning att betygsätta efter 3 genereringar | Feature |
 | In-app uppdateringskontroll (Expo Updates) med reload-banner | Feature |
@@ -35,6 +34,8 @@ Första release (App Store & Google Play).
 ---
 
 ## Build-checklista (före varje release)
+
+**iOS:** Gå igenom [IOS_APP_STORE_CHECKLIST.md](IOS_APP_STORE_CHECKLIST.md) innan submission.
 
 1. **Höj version** i `app.json` och `package.json` (t.ex. 1.0.0 → 1.1.0).
 2. **Android:** Sätt `android.versionCode` i `app.json` till ett högre heltal än föregående release.

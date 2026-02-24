@@ -39,5 +39,9 @@
     "dot-systems"
   ],
   "author": "Dot Systems",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-env": "^7.29.0",
+    "babel-preset-expo": "^54.0.10"
+  }
 }

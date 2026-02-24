@@ -142,7 +142,7 @@ export const EXCUSES = [
   { text: "I had both knees replaced last winter.", tags: ['conditions', 'blame'] },
   { text: "I'm testing this driver shaft.", tags: ['tee', 'blame'] },
 
-  // ── Around the Green ──
+  // -- Around the Green --
   { text: "I skulled that chip because my hands were ahead. Wait, or behind?", tags: ['green_area', 'blame'] },
   { text: "The bunker sand was way too fluffy, impossible to get clean contact.", tags: ['green_area', 'conditions'] },
   { text: "I bladed it across the green because the lie was too perfect. Seriously.", tags: ['green_area', 'blame'] },
@@ -164,7 +164,7 @@ export const EXCUSES = [
   { text: "I moved everything but my bowels on that chip shot.", tags: ['green_area', 'blame'] },
   { text: "That bunker shot was so clean it deserved a tip jar. Too bad it went sideways.", tags: ['green_area'] },
 
-  // ── On the Green ──
+  // -- On the Green --
   { text: "I read the putt perfectly. The green read it differently.", tags: ['on_green', 'blame'] },
   { text: "That putt was dead center. The hole just moved.", tags: ['on_green', 'blame'] },
   { text: "The ball mark I fixed changed the break completely.", tags: ['on_green', 'blame'] },
@@ -183,7 +183,7 @@ export const EXCUSES = [
   { text: "Nice lag.", tags: ['on_green', 'blame'] },
   { text: "Why did I change putters right before the round? Why do I do this to myself?", tags: ['on_green', 'blame'] },
 
-  // ── Trouble ──
+  // -- Trouble --
   { text: "I aimed for the fairway and the ball aimed for the water.", tags: ['trouble', 'tee'] },
   { text: "That's not OB, that's just an alternative fairway.", tags: ['trouble', 'blame'] },
   { text: "I yelled fore but the ball didn't listen.", tags: ['trouble', 'tee'] },
@@ -193,7 +193,7 @@ export const EXCUSES = [
   { text: "The trees jumped out in front of my ball.", tags: ['trouble', 'blame'] },
   { text: "I'm not in the woods, I'm on the scenic route to the green.", tags: ['trouble', 'blame'] },
 
-  // ── Mixed / General ──
+  // -- Mixed / General --
   { text: "I shot one under today. One under a tree, one under a bush, one under the water.", tags: ['trouble', 'blame'] },
   { text: "Golf is harder than baseball. At least in baseball you don't have to play your foul balls.", tags: ['blame'] },
   { text: "I have a tip that can take five shots off anyone's game. It's called an eraser.", tags: ['blame'] },
@@ -202,4 +202,42 @@ export const EXCUSES = [
   { text: "I'm not slicing, I'm hitting a power fade. It's a strategy.", tags: ['tee', 'fairway', 'blame'] },
   { text: "My caddie handed me the wrong club. Oh wait, I don't have a caddie.", tags: ['blame'] },
   { text: "I'd move heaven and earth to break 100 on this course. So far I've mostly moved earth.", tags: ['tee', 'fairway', 'blame'] },
+
+  // -- Additional excuses from remote improvements --
+  { text: "I need some new clubs.", tags: ['blame'] },
+  { text: "I had some negative thoughts before I hit that.", tags: ['blame'] },
+  { text: "Just can't feel anything today.", tags: ['conditions', 'blame'] },
+  { text: "Did you see what I ate? That's why.", tags: ['blame'] },
+  { text: "Some days you're not free of aches and pains, today was one of them.", tags: ['conditions', 'blame'] },
+  { text: "I just lost concentration on that one.", tags: ['blame'] },
+  { text: "The maintenance staff put that marker in the wrong spot, not my fault.", tags: ['fairway', 'blame'] },
+  { text: "I had my mulligan on each hole.", tags: ['blame'] },
+  { text: "What game am I playing?", tags: ['blame'] },
+  { text: "My feet hurt from too much discount shopping.", tags: ['conditions', 'blame'] },
+  { text: "At least I get to go again.", tags: ['blame'] },
+  { text: "Everyone has a different strategy.", tags: ['blame'] },
+  { text: "Just trying to see how quickly I can match the course record.", tags: ['blame'] },
+  { text: "My dog wouldn't roll in that one.", tags: ['blame'] },
+  { text: "I'm out here trying to perform miracles.", tags: ['blame'] },
+  { text: "Way too much bad luck today. Can't wait to try again tomorrow.", tags: ['blame'] },
+  { text: "My foot slipped.", tags: ['conditions'] },
+  { text: "I saw my shadow.", tags: ['tee', 'fairway', 'blame'] },
+  { text: "Better to have a bad round than be at work.", tags: ['blame'] },
+  { text: "I'm trying new balls, still getting used to them.", tags: ['tee', 'fairway', 'blame'] },
+  { text: "New course, I'm not used to it yet.", tags: ['blame'] },
+  { text: "My rangefinder lied to me.", tags: ['fairway', 'blame'] },
+  { text: "That divot wasn't there yesterday.", tags: ['fairway', 'conditions'] },
+  { text: "My caddie gave me the wrong yardage. I don't have a caddie.", tags: ['fairway', 'blame'] },
+  { text: "I blinked.", tags: ['tee', 'fairway', 'blame'] },
+  { text: "Too much coffee this morning, hands are shaky.", tags: ['conditions', 'blame'] },
+  { text: "My watch buzzed right as I was about to putt.", tags: ['on_green', 'blame'] },
+  { text: "I was visualizing my next shot and forgot to hit this one.", tags: ['blame'] },
+  { text: "The tee time was too early, I'm not a morning person.", tags: ['conditions', 'blame'] },
+  { text: "I'm saving my good shots for the back nine.", tags: ['blame'] },
+  { text: "My lucky ball is still in the water from last week.", tags: ['trouble', 'blame'] },
+  { text: "The marshal was staring at me.", tags: ['blame'] },
+  { text: "I've got new grips, still breaking them in.", tags: ['tee', 'fairway', 'blame'] },
+  { text: "The pin placement is cruel today.", tags: ['green_area', 'on_green', 'blame'] },
+  { text: "My playing partner breathed too loud.", tags: ['blame'] },
+  { text: "I pulled a muscle reaching for the scorecard.", tags: ['conditions', 'blame'] },
 ];
