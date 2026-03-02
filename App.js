@@ -10,6 +10,7 @@ import {
   Linking,
   Platform,
   AccessibilityInfo,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +35,13 @@ import { EXCUSES, CATEGORIES } from './src/excuses';
 import { Accelerometer } from 'expo-sensors';
 
 const LOGO = require('./assets/logo.png');
+
+// Detect if device is a tablet (iPad)
+const { width, height } = Dimensions.get('window');
+const isTablet = Math.min(width, height) >= 768;
+
+// Responsive values for tablet vs phone
+const responsiveValue = (phoneValue, tabletValue) => isTablet ? tabletValue : phoneValue;
 
 export default function App() {
   const [excuse, setExcuse] = useState(null);
@@ -450,8 +458,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xxl,
   },
   splashLogoWrap: {
-    width: 120,
-    height: 120,
+    width: responsiveValue(120, 160),
+    height: responsiveValue(120, 160),
     borderRadius: RADIUS.full,
     backgroundColor: PALETTE.surface,
     borderWidth: 3,
@@ -466,7 +474,7 @@ const styles = StyleSheet.create({
     height: '120%',
   },
   splashTitle: {
-    fontSize: 26,
+    fontSize: responsiveValue(26, 38),
     fontWeight: '700',
     letterSpacing: 0.3,
     textAlign: 'center',
@@ -481,8 +489,8 @@ const styles = StyleSheet.create({
     color: PALETTE.accent,
   },
   splashSubtitle: {
-    fontSize: FONT.subtitle,
-    lineHeight: 24,
+    fontSize: responsiveValue(FONT.subtitle, 20),
+    lineHeight: responsiveValue(24, 28),
     color: PALETTE.textMuted,
     textAlign: 'center',
     marginTop: SPACING.sm,
@@ -511,6 +519,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: SPACING.xxl,
+    maxWidth: responsiveValue('100%', 680),
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     marginTop: SPACING.xxl,
@@ -518,8 +529,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoWrap: {
-    width: 96,
-    height: 96,
+    width: responsiveValue(96, 120),
+    height: responsiveValue(96, 120),
     borderRadius: RADIUS.full,
     backgroundColor: PALETTE.surface,
     borderWidth: 2,
@@ -535,7 +546,7 @@ const styles = StyleSheet.create({
     height: '120%',
   },
   title: {
-    fontSize: FONT.title,
+    fontSize: responsiveValue(FONT.title, 36),
     fontWeight: '700',
     letterSpacing: 0.3,
     textAlign: 'center',
@@ -553,8 +564,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   subtitle: {
-    fontSize: FONT.subtitle,
-    lineHeight: 24,
+    fontSize: responsiveValue(FONT.subtitle, 20),
+    lineHeight: responsiveValue(24, 28),
     color: PALETTE.textMuted,
     textAlign: 'center',
     marginTop: SPACING.sm,
@@ -572,8 +583,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xs,
   },
   pill: {
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
+    paddingVertical: responsiveValue(SPACING.sm, SPACING.md),
+    paddingHorizontal: responsiveValue(SPACING.lg, SPACING.xl),
     borderRadius: RADIUS.full,
     backgroundColor: PALETTE.surface,
     borderWidth: 2,
@@ -585,7 +596,7 @@ const styles = StyleSheet.create({
     backgroundColor: PALETTE.surface,
   },
   pillText: {
-    fontSize: FONT.label,
+    fontSize: responsiveValue(FONT.label, 17),
     fontWeight: '600',
     color: PALETTE.textMuted,
   },
@@ -615,11 +626,11 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: PALETTE.surface,
     borderRadius: RADIUS.lg,
-    paddingHorizontal: SPACING.xxl,
-    paddingVertical: SPACING.xxl,
+    paddingHorizontal: responsiveValue(SPACING.xxl, SPACING.xxxl * 1.5),
+    paddingVertical: responsiveValue(SPACING.xxl, SPACING.xxxl * 1.5),
     borderWidth: 2,
     borderColor: PALETTE.border,
-    minHeight: LAYOUT.cardMinHeight,
+    minHeight: responsiveValue(LAYOUT.cardMinHeight, 220),
     justifyContent: 'center',
     shadowColor: PALETTE.shadow,
     shadowOffset: { width: 0, height: 6 },
@@ -677,8 +688,8 @@ const styles = StyleSheet.create({
     minHeight: LAYOUT.btnMinHeight,
   },
   cardText: {
-    fontSize: FONT.bodyLg,
-    lineHeight: 30,
+    fontSize: responsiveValue(FONT.bodyLg, 24),
+    lineHeight: responsiveValue(30, 36),
     color: PALETTE.text,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.35)',
@@ -688,11 +699,11 @@ const styles = StyleSheet.create({
   cardTextPlaceholder: {
     color: PALETTE.textMuted,
     textAlign: 'center',
-    fontSize: FONT.body,
+    fontSize: responsiveValue(FONT.body, 20),
   },
   cardTextLoading: {
-    fontSize: FONT.bodyLg,
-    lineHeight: 30,
+    fontSize: responsiveValue(FONT.bodyLg, 24),
+    lineHeight: responsiveValue(30, 36),
     color: PALETTE.text,
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.35)',
