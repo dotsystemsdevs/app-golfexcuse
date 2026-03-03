@@ -1,8 +1,8 @@
-# app-golfexcuse
+# Bogey Blamer
 
-**Golf Excuse Generator** — mobilapp som ger slumpmässiga golfursäkter i en knapptryckning. Tryck **Generate Excuse**, kopiera och dela. Ingen konto, ingen spårning. React Native (Expo).
+**Bogey Blamer** — mobilapp som ger slumpmässiga golfursäkter. Tryck eller skaka för att generera, kopiera och dela. Ingen konto, ingen spårning. React Native (Expo).
 
-**Version:** 1.0.0 · **Repo:** [dotsystemsdevs/app-golfexcuse](https://github.com/dotsystemsdevs/app-golfexcuse)
+**Version:** 1.2.0 · **Repo:** [dotsystemsdevs/app-golfexcuse](https://github.com/dotsystemsdevs/app-golfexcuse)
 
 ![App logo](assets/logo.png)
 
@@ -10,7 +10,7 @@
 
 ## Status
 
-**Appen är inskickad till App Store** (submitted). Build 2, version 1.0.0. När den är godkänd visas den på App Store.
+**Appen är inskickad till App Store** (submitted). Build 3, version 1.2.0. När den är godkänd visas den på App Store.
 
 - **Kod:** Edge cases hanterade (tomma listor, ogiltig config, try/catch på async, Linking/Clipboard/Updates).
 - **UI:** Inledande laddningsskärm, tillgänglighet (VoiceOver/TalkBack, reduce motion), tydliga etiketter.
@@ -34,7 +34,7 @@
 
 ## Vad appen gör
 
-- **Slumpmässig ursäkt** — ett tryck, 150+ alternativ
+- **Slumpmässig ursäkt** — tryck eller skaka, 219 alternativ i 7 kategorier
 - **Kopiera** — en tryckning, feedback "Copied!"
 - **Betyg** — uppmaning efter 3 genereringar; länkar till Privacy & Terms i sidfoten
 - **Uppdateringar** — in-app kontroll (Expo Updates)
@@ -102,8 +102,8 @@ app-golfexcuse/
 │   └── ipad/           # 12.9" (2064×2752)
 ├── src/
 │   ├── constants.js    # CONFIG, PALETTE, SPACING, FONT — ändra här
-│   ├── utils.js       # pickRandom (slump från array)
-│   └── excuses.js     # Lista EXCUSES (150+)
+│   ├── utils.js       # pickRandom, pickWeighted (slump från array)
+│   └── excuses.js     # Lista EXCUSES (219 st med kategorier)
 ├── assets/
 │   ├── icon.png       # App-ikon
 │   ├── logo.png       # Logo i appen
