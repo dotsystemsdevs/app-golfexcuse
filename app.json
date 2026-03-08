@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.dotsystems.appgolfexcuse",
-      "appStoreUrl": "",
+      "appStoreUrl": "https://apps.apple.com/us/app/bogey-blamer-golf-excuses/id6759191239",
       "config": {
         "usesNonExemptEncryption": false
       },

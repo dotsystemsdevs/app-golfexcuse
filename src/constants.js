@@ -8,7 +8,7 @@ export const CONFIG = {
   STORAGE_KEY_ASKED_REVIEW: 'app_golfexcuse_asked_review',
   LEGAL_BASE_URL: 'https://dotsystemsdevs.github.io/app-legal-docs/app-golfexcuse',
   PLAY_STORE_URL: 'https://play.google.com/store/apps/details?id=com.dotsystems.appgolfexcuse',
-  APP_STORE_URL: '',
+  APP_STORE_URL: 'https://apps.apple.com/us/app/bogey-blamer-golf-excuses/id6759191239',
   GENERATE_DELAY_MS: 1100,
   COPY_RESET_MS: 1800,
   SPLASH_MIN_MS: 1000,
