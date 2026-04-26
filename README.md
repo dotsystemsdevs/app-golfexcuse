@@ -1,116 +1,79 @@
-<p align="center">
-  <img src="assets/logo.png" alt="Bogey Blamer" width="120" height="120" />
-</p>
-
-<h1 align="center">Bogey Blamer</h1>
+# Bogey Blamer (web)
 
 <p align="center">
-  <strong>Bad shot? Blame everything but yourself.</strong><br/>
-  A golf excuse generator built with React Native.
+  <img src="public/logo-dark.png" alt="Bogey Blamer" width="100" height="100" />
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-1A1A1A?style=for-the-badge" alt="Version" />
-  &nbsp;
-  <img src="https://img.shields.io/badge/license-MIT-1A1A1A?style=for-the-badge" alt="License" />
-  &nbsp;
-  <img src="https://img.shields.io/badge/platform-Android%20%7C%20iOS-1A1A1A?style=for-the-badge&logo=apple&logoColor=white" alt="Platform" />
-</p>
+**Random golf alibis in the browser** — one tap to draw a new line, vote, and share.
+
+This repository is the **Next.js 15** web app. The older React Native / Expo project files have been removed; if you need that history, use `git log` and earlier commits on `main`.
 
 ---
 
-## Screenshots
+## Features
 
-<p align="center">
-  <img src="screenshots/ios/1.jpg" alt="Generate excuse" width="140" />
-  <img src="screenshots/ios/2.jpg" alt="Categories" width="140" />
-  <img src="screenshots/ios/3.jpg" alt="Leaderboard" width="140" />
-  <img src="screenshots/ios/4.jpg" alt="Submit excuse" width="140" />
-  <img src="screenshots/ios/5.jpg" alt="Settings" width="140" />
-  <img src="screenshots/ios/6.jpg" alt="Shake to generate" width="140" />
-</p>
+- **Large excuse pool** (see `lib/excuses.js`) with weighted random — avoids repeating the same line you already see
+- **Live “excuses in play” counter** (Upstash / Vercel KV) with a sensible fallback if Redis is offline
+- **Weekly top-3 strip** in the header (`/api/leaderboard`)
+- **Thumbs** per excuse (`/api/vote`) with Upstash-stored tallies
+- **Share** — Facebook, X, and copy-to-clipboard
 
 ---
 
-## What It Does
+## Tech stack
 
-Tap or shake your phone to generate a random golf excuse. Copy it, share it, blame anything but your swing.
-
-- **219 excuses** across 7 categories (Weather, Equipment, Course, Body, Mental, Blame, Luck)
-- **Shake to generate** — just shake your phone for a new excuse
-- **Copy & share** — one tap to clipboard
-- **Community leaderboard** — vote on the best excuses, see weekly/monthly/all-time rankings
-- **Submit your own** — send excuses for community review
-- **Haptic feedback** — satisfying vibrations on every action
-- **Privacy-first analytics** — TelemetryDeck, no personal data collected
-- **In-app updates** — always the latest excuses via Expo Updates
-- **100% offline capable** — works without internet, syncs when connected
+| | |
+|--|--|
+| Framework | [Next.js](https://nextjs.org/) 15 (App Router) |
+| UI | [Tailwind CSS](https://tailwindcss.com/) v4 |
+| Data (optional) | [Upstash Redis](https://upstash.com/) for counts, votes, weekly leaderboard |
+| Node | 18+ recommended |
 
 ---
 
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | React Native + Expo SDK 54 |
-| Language | JavaScript |
-| Backend | Supabase (leaderboard, votes, submissions) |
-| Storage | AsyncStorage |
-| Haptics | Expo Haptics |
-| Sensors | Expo Sensors (shake detection) |
-| Analytics | TelemetryDeck (privacy-first) |
-| Testing | Jest |
-
----
-
-## Getting Started
+## Development
 
 ```bash
 git clone https://github.com/dotsystemsdevs/app-golfexcuse.git
 cd app-golfexcuse
 npm install
-npm start
+npm run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000).  
+Copy `.env.example` to `.env.local` and add Upstash (or Vercel KV) credentials for live counts and voting; the app still runs with fallbacks if Redis is not configured.
 
 ```bash
-npm run android    # Android emulator
-npm run ios        # iOS simulator
-npm run web        # Browser
-```
-
-**Requirements:** Node.js 18+, Expo CLI
-
----
-
-## Project Structure
-
-```
-App.js              Main single-file app component
-src/
-  constants.js      Config, palette, spacing, fonts
-  excuses.js        219 excuses with categories & tags
-  utils.js          pickRandom, pickWeighted helpers
-  supabase.js       Supabase client & API helpers
-assets/             Icons, logo, splash screen
-screenshots/        App Store & Play Store screenshots
-backend/            Supabase schema & setup
+npm run build   # production build
+npm run start   # after build
+npm run lint
 ```
 
 ---
 
-## Privacy & Data
+## Project layout
 
-**No accounts. No tracking. No ads.**
-
-Anonymous usage analytics via [TelemetryDeck](https://telemetrydeck.com) — no personal data collected. Leaderboard votes use anonymous device IDs.
+```
+app/              App Router: page, layout, global CSS, API routes
+  api/
+    generated/   POST — bump global excuse count, GET current total
+    vote/         POST — vote on an excuse id
+    leaderboard/  GET — weekly (or other range) top excuses
+components/       CountUp, Top banner, footer
+lib/              Excuses, IDs, client API helpers, pickDifferentWeighted, etc.
+public/           Static assets (e.g. logo, favicon)
+```
 
 ---
 
-## Legal
+## API environment
 
-- [Privacy Policy](https://dotsystemsdevs.github.io/app-legal-docs/app-golfexcuse/privacy.html)
-- [Terms of Service](https://dotsystemsdevs.github.io/app-legal-docs/app-golfexcuse/terms.html)
+See `.env.example`. Vercel KV often injects `KV_REST_API_URL` and `KV_REST_API_TOKEN`. Otherwise use Upstash’s `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` as supported in the API code.
+
+---
 
 ## License
 
-MIT
+MIT — see `package.json` for author and repository fields.
+
+The mobile app and store metadata that used to live in this repo are no longer present on this branch; this README documents the **web** edition only.
