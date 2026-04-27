@@ -51,6 +51,7 @@ export default function HomePage() {
   const [copied, setCopied] = useState(false);
   const [genCount, setGenCount] = useState(0);
   const [globalTotal, setGlobalTotal] = useState(null);
+  const [baseUrl, setBaseUrl] = useState('');
 
   const [ctaLabel, setCtaLabel] = useState(CTA_FIRST);
 
@@ -66,6 +67,10 @@ export default function HomePage() {
     fetchGeneratedTotal()
       .then((t) => setGlobalTotal(t > 0 ? t : FALLBACK_TOTAL))
       .catch(() => setGlobalTotal(FALLBACK_TOTAL));
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') setBaseUrl(window.location.origin);
   }, []);
 
   const handleGenerate = useCallback(() => {
@@ -94,7 +99,6 @@ export default function HomePage() {
     }
   }, [currentExcuseId]);
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${cardText}" — my official ruling on that round.`)}&url=${encodeURIComponent(baseUrl)}`;
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(baseUrl)}&quote=${encodeURIComponent(`"${cardText}"`)}`;
 
@@ -135,7 +139,7 @@ export default function HomePage() {
           <span className="font-medium"> served — and counting</span>
         </p>
 
-        {/* Excuse panel */}
+        {/* Excuse panel — clean cream card */}
         <section
           id="excuse"
           aria-labelledby="excuse-h"
@@ -145,11 +149,11 @@ export default function HomePage() {
           <p
             key={genCount}
             className="fade-in text-center text-[1.35rem] sm:text-[1.7rem] lg:text-[1.9rem] leading-[1.22] font-semibold tracking-[-0.02em] text-balance max-w-xl mx-auto"
-            style={{ color: 'var(--color-cream)' }}
+            style={{ color: '#1A1916' }}
           >
-            <span style={{ color: 'rgba(245,241,232,0.32)' }} aria-hidden>&ldquo;</span>
+            <span style={{ color: 'rgba(26,25,22,0.30)' }} aria-hidden>&ldquo;</span>
             {cardText}
-            <span style={{ color: 'rgba(245,241,232,0.32)' }} aria-hidden>&rdquo;</span>
+            <span style={{ color: 'rgba(26,25,22,0.30)' }} aria-hidden>&rdquo;</span>
           </p>
 
           <div
@@ -195,11 +199,11 @@ function ThumbButton({ direction, active, onClick }) {
   const isUp = direction === 'up';
   const bg = active
     ? isUp ? 'var(--color-yellow)' : 'var(--color-red)'
-    : 'rgba(255,255,255,0.10)';
+    : 'rgba(26,25,22,0.06)';
   const color = active
-    ? isUp ? 'var(--color-fairway-deep)' : '#FFFFFF'
-    : 'rgba(255,255,255,0.65)';
-  const ring = active ? 'transparent' : 'rgba(255,255,255,0.15)';
+    ? isUp ? '#1A1916' : '#FFFFFF'
+    : 'rgba(26,25,22,0.50)';
+  const ring = active ? 'transparent' : 'rgba(26,25,22,0.10)';
 
   return (
     <button
@@ -208,7 +212,7 @@ function ThumbButton({ direction, active, onClick }) {
       aria-label={isUp ? 'Pure' : 'Shanked'}
       title={isUp ? 'Pure' : 'Shanked'}
       aria-pressed={active}
-      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-150 cursor-pointer ${active ? 'pop' : 'hover:bg-white/20'}`}
+      className={`thumb-btn-light w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer ${active ? 'pop' : ''}`}
       style={{ background: bg, color, border: `1px solid ${ring}` }}
     >
       <ThumbIcon up={isUp} />
