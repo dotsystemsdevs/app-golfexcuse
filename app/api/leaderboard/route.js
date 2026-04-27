@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRedis, KEYS } from '@/lib/redis';
 import { getExcuseText } from '@/lib/excuse-ids';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,6 +9,8 @@ export const dynamic = 'force-dynamic';
 const LIMIT = 20;
 
 export async function GET(req) {
+  const limited = await rateLimit(req, { name: 'leaderboard_get', limit: 60, windowMs: 60_000 });
+  if (limited) return limited;
   const { searchParams } = new URL(req.url);
   const range = searchParams.get('range') || 'all';
 

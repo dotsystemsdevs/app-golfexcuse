@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getRedis, KEYS, TTL } from '@/lib/redis';
 import { getExcuseText } from '@/lib/excuse-ids';
+import { rateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req) {
+  const limited = await rateLimit(req, { name: 'vote_post', limit: 50, windowMs: 60_000 });
+  if (limited) return limited;
   let body;
   try {
     body = await req.json();
