@@ -145,6 +145,14 @@ export default function HomePage() {
           className="excuse-panel relative w-full mt-5 sm:mt-6 px-6 sm:px-10 py-7 sm:py-9 min-h-[9.5rem] sm:min-h-[10.5rem] flex items-center justify-center"
         >
           <h2 id="excuse-h" className="sr-only">Today's ruling</h2>
+          <div
+            className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 flex items-center gap-2"
+            role="group"
+            aria-label="Rate this ruling"
+          >
+            <ThumbButton direction="down" active={vote === 'down'} onClick={() => handleVote('down')} />
+            <ThumbButton direction="up" active={vote === 'up'} onClick={() => handleVote('up')} />
+          </div>
           <p
             key={genCount}
             className="fade-in text-center text-[1.15rem] sm:text-[1.45rem] lg:text-[1.55rem] leading-[1.32] font-semibold tracking-[-0.01em] text-balance max-w-xl mx-auto"
@@ -153,15 +161,6 @@ export default function HomePage() {
             {cardText}
           </p>
         </section>
-
-        <div
-          className="mt-4 sm:mt-5 flex items-center justify-center gap-2"
-          role="group"
-          aria-label="Rate this ruling"
-        >
-          <ThumbButton direction="down" active={vote === 'down'} onClick={() => handleVote('down')} />
-          <ThumbButton direction="up" active={vote === 'up'} onClick={() => handleVote('up')} />
-        </div>
 
         {/* Yellow CTA */}
         <button
@@ -194,13 +193,10 @@ export default function HomePage() {
 
 function ThumbButton({ direction, active, onClick }) {
   const isUp = direction === 'up';
-  const bg = active
-    ? isUp ? 'var(--color-yellow)' : 'var(--color-red)'
-    : 'rgba(26,25,22,0.06)';
-  const color = active
-    ? isUp ? '#1A1916' : '#FFFFFF'
-    : 'rgba(26,25,22,0.50)';
-  const ring = active ? 'transparent' : 'rgba(26,25,22,0.10)';
+  const bg = isUp ? 'var(--color-green)' : 'var(--color-red)';
+  const background = active ? bg : `color-mix(in srgb, ${bg} 16%, white 84%)`;
+  const color = active ? '#fff' : `color-mix(in srgb, ${bg} 55%, #1A1916 45%)`;
+  const ring = active ? 'transparent' : 'rgba(26,25,22,0.12)';
 
   return (
     <button
@@ -210,7 +206,7 @@ function ThumbButton({ direction, active, onClick }) {
       title={isUp ? 'Pure' : 'Shanked'}
       aria-pressed={active}
       className={`thumb-btn-light w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer ${active ? 'pop' : ''}`}
-      style={{ background: bg, color, border: `1px solid ${ring}` }}
+      style={{ background: background, color, border: `1px solid ${ring}` }}
     >
       <ThumbIcon up={isUp} />
     </button>
