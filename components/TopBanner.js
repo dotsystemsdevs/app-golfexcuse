@@ -25,7 +25,7 @@ export default function TopBanner() {
       aria-label="Top 3 this week"
     >
       <div
-        className="max-w-2xl mx-auto w-full px-5 sm:px-8 py-2 sm:py-2.5 flex items-center justify-center gap-3 text-[12px] sm:text-[13px]"
+        className="max-w-2xl mx-auto w-full px-5 sm:px-8 py-2 sm:py-2.5 flex items-center justify-center gap-2.5 sm:gap-3 text-[12px] sm:text-[13px] min-w-0"
         style={{ paddingTop: 'max(0.55rem, env(safe-area-inset-top, 0px))' }}
       >
         <span
@@ -48,15 +48,17 @@ export default function TopBanner() {
             Be the first to vote
           </span>
         ) : (
-          <div className="flex items-center justify-center gap-3 sm:gap-4 whitespace-nowrap min-w-0 overflow-x-auto scrollbar-hide">
+          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+            <div className="inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap pr-2">
             {top.map((item, i) => (
-              <span key={item.id} className="inline-flex items-center gap-1.5 font-medium text-[11px] sm:text-[12px]">
+              <span key={item.id} className="inline-flex items-center gap-1.5 font-medium text-[11px] sm:text-[12px] min-w-0">
                 <span className="font-bold opacity-80" style={{ color: 'var(--color-yellow)' }}>#{i + 1}</span>
-                <span className="opacity-95 truncate max-w-[10rem] sm:max-w-[14rem]">{item.text}</span>
+                <span className="opacity-95 truncate max-w-[7.5rem] sm:max-w-[10.5rem] md:max-w-[14rem]">{item.text}</span>
                 <span className="opacity-60 tabular-nums">+{item.votes}</span>
-                {i < top.length - 1 && <span aria-hidden className="opacity-25 ml-2">·</span>}
+                {i < top.length - 1 && <span aria-hidden className="opacity-25 mx-2">·</span>}
               </span>
             ))}
+            </div>
           </div>
         )}
       </div>

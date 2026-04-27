@@ -148,19 +148,13 @@ export default function HomePage() {
           <h2 id="excuse-h" className="sr-only">Today's ruling</h2>
           <p
             key={genCount}
-            className="fade-in text-center text-[1.35rem] sm:text-[1.7rem] lg:text-[1.9rem] leading-[1.22] font-semibold tracking-[-0.02em] text-balance max-w-xl mx-auto"
+            className="fade-in text-center text-[1.15rem] sm:text-[1.45rem] lg:text-[1.55rem] leading-[1.32] font-semibold tracking-[-0.01em] text-balance max-w-xl mx-auto"
             style={{ color: '#1A1916' }}
           >
-            <span style={{ color: 'rgba(26,25,22,0.30)' }} aria-hidden>&ldquo;</span>
             {cardText}
-            <span style={{ color: 'rgba(26,25,22,0.30)' }} aria-hidden>&rdquo;</span>
           </p>
 
-          <div
-            className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 flex items-center gap-1.5"
-            role="group"
-            aria-label="Rate this ruling"
-          >
+          <div className="mt-4 sm:mt-5 flex items-center justify-end gap-2" role="group" aria-label="Rate this ruling">
             <ThumbButton direction="down" active={vote === 'down'} onClick={() => handleVote('down')} />
             <ThumbButton direction="up" active={vote === 'up'} onClick={() => handleVote('up')} />
           </div>
