@@ -134,7 +134,7 @@ export default function HomePage() {
             <CountUp value={globalTotal !== null ? globalTotal : FALLBACK_TOTAL} />
           </span>
           <span className="text-[11px] sm:text-[12px] font-medium uppercase tracking-[0.18em] ml-2">
-            excuses dealt
+            alibis dealt
           </span>
         </p>
 
