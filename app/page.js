@@ -171,15 +171,6 @@ export default function HomePage({ initialPickNumber = null } = {}) {
           </span>
         </p>
 
-        <p
-          className="mt-1 text-center"
-          style={{ color: 'rgba(245,241,232,0.45)' }}
-        >
-          <span className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.18em]">
-            {EXCUSE_COUNT} excuses available
-          </span>
-        </p>
-
         {/* Excuse panel — clean cream card */}
         <div className="relative w-full mt-5 sm:mt-6">
           <section
