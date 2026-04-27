@@ -10,15 +10,38 @@ import { getExcuseId } from '@/lib/excuse-ids';
 import { fetchGeneratedTotal, trackGenerated, voteForExcuse } from '@/lib/api';
 import { playSplash } from '@/lib/sounds';
 
-const FALLBACK_TOTAL = 1247;
+const FALLBACK_TOTAL = 0;
 
+const CTA_FIRST = 'Take the Mulligan';
 const CTA_LABELS = [
-  'Take the Mulligan',
   'Another Mulligan',
-  'Tee Up Another',
-  'One More for the Card',
-  'Final Ruling',
+  'Roll a new one',
+  'Lie a little better',
+  'Convince me',
+  'Spin it again',
+  'Lawyer up',
+  'Plead the fifth',
+  'Drop a new ball',
+  'Foot wedge it',
+  'Try the back nine',
+  'Cope harder',
+  'Punch out',
+  'Last one, I swear',
+  'One more, on me',
+  'Tell the truth, kidding',
+  'Sandbag it',
+  'From the drop zone',
+  'Take a free drop',
+  'Replay that shot',
+  'Find a softer truth',
 ];
+
+function pickRandomLabel(prev) {
+  if (CTA_LABELS.length <= 1) return CTA_LABELS[0];
+  let next;
+  do { next = CTA_LABELS[Math.floor(Math.random() * CTA_LABELS.length)]; } while (next === prev);
+  return next;
+}
 
 export default function HomePage() {
   const [excuse, setExcuse] = useState(null);
@@ -28,6 +51,9 @@ export default function HomePage() {
   const [copied, setCopied] = useState(false);
   const [genCount, setGenCount] = useState(0);
   const [globalTotal, setGlobalTotal] = useState(null);
+  const [baseUrl, setBaseUrl] = useState('');
+
+  const [ctaLabel, setCtaLabel] = useState(CTA_FIRST);
 
   const seenExcuses = useRef(new Set());
   const dailyExcuse = useMemo(() => getDailyExcuse(EXCUSES), []);
@@ -43,6 +69,10 @@ export default function HomePage() {
       .catch(() => setGlobalTotal(FALLBACK_TOTAL));
   }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') setBaseUrl(window.location.origin);
+  }, []);
+
   const handleGenerate = useCallback(() => {
     playSplash();
     const picked = pickDifferentWeighted(EXCUSES, cardText, seenExcuses.current);
@@ -52,6 +82,7 @@ export default function HomePage() {
     setVote(null);
     setHasGenerated(true);
     setGenCount((c) => c + 1);
+    setCtaLabel((prev) => pickRandomLabel(prev));
     setGlobalTotal((cur) => (cur == null ? cur : cur + 1));
     trackGenerated().then((t) => {
       if (typeof t === 'number' && t > 0) setGlobalTotal(t);
@@ -68,7 +99,6 @@ export default function HomePage() {
     }
   }, [currentExcuseId]);
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${cardText}" — my official ruling on that round.`)}&url=${encodeURIComponent(baseUrl)}`;
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(baseUrl)}&quote=${encodeURIComponent(`"${cardText}"`)}`;
 
@@ -80,48 +110,36 @@ export default function HomePage() {
     } catch {}
   }, [cardText, baseUrl]);
 
-  const ctaLabel = !hasGenerated ? CTA_LABELS[0] : CTA_LABELS[Math.min(genCount, CTA_LABELS.length - 1)];
-
   return (
     <main className="relative flex h-dvh max-h-dvh overflow-hidden flex-col" id="main">
       <a href="#excuse" className="skip-link">Skip to excuse</a>
       <TopBanner />
 
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-5 py-4 sm:py-6 max-w-2xl mx-auto w-full">
-        {/* Wordmark + race-rule */}
+        {/* Wordmark */}
         <h1
-          className="text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-[0.95] tracking-[-0.02em] text-center inline-flex items-center gap-2.5 sm:gap-3"
-          style={{ fontFamily: 'var(--font-brand)', color: 'var(--color-cream)' }}
+          className="text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-[0.95] tracking-[-0.035em] text-center font-extrabold"
+          style={{ color: 'var(--color-cream)' }}
         >
-          <span aria-hidden className="text-[0.85em] leading-none">⛳</span>
-          <span>Excuse Caddie</span>
+          Excuse Caddie
         </h1>
-        <span aria-hidden className="race-rule mt-3 sm:mt-3.5" />
 
-        {/* Counter — scoreboard pill */}
-        <div
-          className="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full"
-          style={{
-            background: 'rgba(0,0,0,0.22)',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
+        {/* Counter — quiet inline text, no bubble */}
+        <p
+          className="mt-3 sm:mt-4 text-[13px] sm:text-[14px] tabular-nums text-center"
+          style={{ color: 'rgba(245,241,232,0.55)' }}
           aria-live="polite"
         >
           <span
-            className="font-bold tabular-nums text-[13px] sm:text-[14px]"
-            style={{ color: 'var(--color-yellow)', letterSpacing: '0.06em' }}
+            className="font-semibold"
+            style={{ color: 'var(--color-yellow)', letterSpacing: '0.01em' }}
           >
             <CountUp value={globalTotal !== null ? globalTotal : FALLBACK_TOTAL} />
           </span>
-          <span
-            className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em]"
-            style={{ color: 'rgba(245,241,232,0.62)' }}
-          >
-            Alibis dispensed
-          </span>
-        </div>
+          <span className="font-medium"> served — and counting</span>
+        </p>
 
-        {/* Excuse panel */}
+        {/* Excuse panel — clean cream card */}
         <section
           id="excuse"
           aria-labelledby="excuse-h"
@@ -130,19 +148,13 @@ export default function HomePage() {
           <h2 id="excuse-h" className="sr-only">Today's ruling</h2>
           <p
             key={genCount}
-            className="fade-in text-center text-[1.35rem] sm:text-[1.7rem] lg:text-[1.9rem] leading-[1.22] font-semibold tracking-[-0.02em] text-balance max-w-xl mx-auto"
-            style={{ color: 'var(--color-cream)' }}
+            className="fade-in text-center text-[1.15rem] sm:text-[1.45rem] lg:text-[1.55rem] leading-[1.32] font-semibold tracking-[-0.01em] text-balance max-w-xl mx-auto"
+            style={{ color: '#1A1916' }}
           >
-            <span style={{ color: 'rgba(245,241,232,0.32)' }} aria-hidden>&ldquo;</span>
             {cardText}
-            <span style={{ color: 'rgba(245,241,232,0.32)' }} aria-hidden>&rdquo;</span>
           </p>
 
-          <div
-            className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 flex items-center gap-1.5"
-            role="group"
-            aria-label="Rate this ruling"
-          >
+          <div className="mt-4 sm:mt-5 flex items-center justify-end gap-2" role="group" aria-label="Rate this ruling">
             <ThumbButton direction="down" active={vote === 'down'} onClick={() => handleVote('down')} />
             <ThumbButton direction="up" active={vote === 'up'} onClick={() => handleVote('up')} />
           </div>
@@ -157,7 +169,7 @@ export default function HomePage() {
           {ctaLabel}
         </button>
 
-        {/* Race share row — 3 colour pills, same shape, same shadow */}
+        {/* Race share row */}
         <div className="mt-4 sm:mt-5 flex items-center justify-center gap-2 sm:gap-2.5" aria-label="Share">
           <SharePill href={fbUrl} variant="blue" ariaLabel="Share on Facebook">
             <FbIcon /> <span>Facebook</span>
@@ -181,11 +193,11 @@ function ThumbButton({ direction, active, onClick }) {
   const isUp = direction === 'up';
   const bg = active
     ? isUp ? 'var(--color-yellow)' : 'var(--color-red)'
-    : 'rgba(255,255,255,0.10)';
+    : 'rgba(26,25,22,0.06)';
   const color = active
-    ? isUp ? 'var(--color-fairway-deep)' : '#FFFFFF'
-    : 'rgba(255,255,255,0.65)';
-  const ring = active ? 'transparent' : 'rgba(255,255,255,0.15)';
+    ? isUp ? '#1A1916' : '#FFFFFF'
+    : 'rgba(26,25,22,0.50)';
+  const ring = active ? 'transparent' : 'rgba(26,25,22,0.10)';
 
   return (
     <button
@@ -194,7 +206,7 @@ function ThumbButton({ direction, active, onClick }) {
       aria-label={isUp ? 'Pure' : 'Shanked'}
       title={isUp ? 'Pure' : 'Shanked'}
       aria-pressed={active}
-      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors duration-150 cursor-pointer ${active ? 'pop' : 'hover:bg-white/20'}`}
+      className={`thumb-btn-light w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer ${active ? 'pop' : ''}`}
       style={{ background: bg, color, border: `1px solid ${ring}` }}
     >
       <ThumbIcon up={isUp} />
