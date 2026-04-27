@@ -8,7 +8,7 @@ export default function TopBanner() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchLeaderboard('weekly')
+    fetchLeaderboard('all')
       .then((rows) => { if (!cancelled) setTop((rows || []).slice(0, 3)); })
       .catch(() => { if (!cancelled) setTop([]); });
     return () => { cancelled = true; };
@@ -22,10 +22,10 @@ export default function TopBanner() {
         borderColor: 'rgba(255,255,255,0.08)',
       }}
       role="region"
-      aria-label="Top 3 this week"
+      aria-label="Top 3 all-time"
     >
       <div
-        className="max-w-2xl mx-auto w-full px-5 sm:px-8 py-2 sm:py-2.5 flex items-center justify-center gap-2.5 sm:gap-3 text-[12px] sm:text-[13px] min-w-0"
+        className="w-full px-4 sm:px-8 py-2 sm:py-2.5 flex items-center gap-2.5 sm:gap-3 text-[12px] sm:text-[13px] min-w-0"
         style={{ paddingTop: 'max(0.55rem, env(safe-area-inset-top, 0px))' }}
       >
         <span
@@ -36,7 +36,7 @@ export default function TopBanner() {
         </span>
         <span aria-hidden style={{ color: 'rgba(255,255,255,0.30)' }}>·</span>
         <span className="font-medium uppercase tracking-wider text-[10px] flex-shrink-0 opacity-60">
-          This Week
+          All-time
         </span>
         <span aria-hidden style={{ color: 'rgba(255,255,255,0.30)' }}>·</span>
 
@@ -49,11 +49,11 @@ export default function TopBanner() {
           </span>
         ) : (
           <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide">
-            <div className="inline-flex items-center gap-2.5 sm:gap-3 whitespace-nowrap pr-2">
+            <div className="inline-flex items-center gap-3 sm:gap-4 whitespace-nowrap pr-6">
             {top.map((item, i) => (
               <span key={item.id} className="inline-flex items-center gap-1.5 font-medium text-[11px] sm:text-[12px] min-w-0">
                 <span className="font-bold opacity-80" style={{ color: 'var(--color-yellow)' }}>#{i + 1}</span>
-                <span className="opacity-95 truncate max-w-[7.5rem] sm:max-w-[10.5rem] md:max-w-[14rem]">{item.text}</span>
+                <span className="opacity-95 truncate max-w-[12rem] sm:max-w-[18rem] md:max-w-[24rem]">{item.text}</span>
                 <span className="opacity-60 tabular-nums">+{item.votes}</span>
                 {i < top.length - 1 && <span aria-hidden className="opacity-25 mx-2">·</span>}
               </span>
