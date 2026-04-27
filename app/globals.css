@@ -1,175 +1,199 @@
 @import "tailwindcss";
 
 @theme {
-  /* UI: clean system sans (no webfont — works offline) */
-  --font-sans: "Segoe UI", -apple-system, system-ui, "Helvetica Neue", Roboto, "Noto Sans", sans-serif;
-  /* Alibis: book serif — Cambria/Constantia on Windows, nice fallbacks everywhere */
-  --font-serif: Cambria, "Hoefler Text", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Noto Serif", serif;
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "DM Serif Display", "Playfair Display", "Iowan Old Style", Georgia, serif;
+  --font-brand: "Archivo Black", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-  /* Course palette */
-  --color-sky-tint: rgba(186, 210, 200, 0.14);
-  --color-fairway: #2d4a3a;
-  --color-fairway-mid: #234031;
-  --color-fairway-dark: #1a3024;
-  --color-fairway-deep: #0f1a14;
-  --color-rough: #152a1e;
-  --color-bunker-sand: #d4c9b0;
-  --color-scorecard: #faf6ec;
-  --color-scorecard-warm: #ebe3d4;
-  --color-pencil: #1c1914;
-  --color-tee-gold: #b8941f;
-  --color-tee-bright: #d4a82c;
-  --color-tee-highlight: #e8c24a;
-  --color-flag-red: #b32121;
-  --color-flag-bright: #c41e1e;
-  /* Putting / “good” vote */
-  --color-putting: #1a6b45;
-  --color-putting-bright: #1f7a4e;
-  /* Legacy names used in components */
-  --color-tee-yellow: var(--color-tee-gold);
-  --color-tee-yellow-bright: var(--color-tee-bright);
-  --color-fairway-deep-legacy: var(--color-fairway-deep);
-  --color-fairway-pale: var(--color-bunker-sand);
-  --color-scorecard-edge: #d2c4ac;
-  --color-flag-red-dark: #8b1818;
-  --shadow-card: 0 2px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 2px rgba(0, 0, 0, 0.06), 0 20px 40px -8px rgba(0, 0, 0, 0.18);
-  --shadow-cta: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 2px 0 #8a6f12, 0 6px 16px rgba(0, 0, 0, 0.12);
-  --shadow-cta-active: 0 1px 0 #6b5610;
+  /* Fairway base */
+  --color-fairway: #3D6149;
+  --color-fairway-soft: #4A7457;
+  --color-fairway-deep: #1F3127;
+  --color-fairway-shadow: rgba(15, 30, 22, 0.55);
+
+  /* Race accents — disciplined four-color system */
+  --color-yellow: #E8C547;        /* primary action, counter highlight */
+  --color-yellow-dark: #B8961E;   /* yellow shadow / press state */
+  --color-blue: #2E5AA8;          /* Facebook share */
+  --color-blue-dark: #224178;
+  --color-black: #14171A;          /* X share, deep accents */
+  --color-black-dark: #08090B;
+  --color-red: #C8362A;            /* destructive / pocket-it / objection */
+  --color-red-dark: #9E2820;
+
+  --color-cream: #F5F1E8;
+
+  /* Aliases (legacy refs) */
+  --color-grass: var(--color-fairway);
+  --color-grass-deep: var(--color-fairway-deep);
+  --color-grass-shadow: var(--color-fairway-shadow);
+  --color-grass-soft: var(--color-fairway-soft);
+  --color-gold: var(--color-yellow);
+  --color-gold-dark: var(--color-yellow-dark);
+  --color-gold-bright: #F2D45A;
+  --color-tee-yellow: var(--color-yellow);
+  --color-tee-yellow-dark: var(--color-yellow-dark);
+  --color-tee-bright: var(--color-yellow);
+  --color-tee-highlight: var(--color-gold-bright);
+  --color-tee-yellow-bright: var(--color-yellow);
+  --color-fb-blue: var(--color-blue);
+  --color-x-dark: var(--color-black);
+  --color-flag-red: var(--color-red);
+  --color-flag-red-dark: var(--color-red-dark);
+  --color-flag-bright: var(--color-red);
+  --color-fairway-pale: var(--color-cream);
+  --color-putting: var(--color-fairway-soft);
+  --color-pencil: #FFFFFF;
+  --color-scorecard: var(--color-fairway-shadow);
+  --color-ink: #FFFFFF;
+
+  /* One radius scale */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+
+  /* One shadow scale */
+  --sh-1: 0 2px 6px rgba(0, 0, 0, 0.10);
+  --sh-2: 0 6px 18px rgba(0, 0, 0, 0.14);
+  --sh-3: 0 12px 32px rgba(0, 0, 0, 0.18);
+
+  /* One transition */
+  --t: 150ms ease-out;
 }
 
-html,
-body {
+html, body {
   min-height: 100%;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  color: #f0ece3;
+  background: var(--color-fairway);
+  color: var(--color-cream);
   overscroll-behavior: none;
-  background: #2a4334;
-  background-image: linear-gradient(180deg, rgba(200, 215, 200, 0.07) 0%, transparent 42%),
-    linear-gradient(180deg, #2e4d3c 0%, #243a2e 55%, #1a2a1f 100%);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: -0.005em;
 }
 
-button,
-a {
+button, a {
   font-family: inherit;
 }
 
-@layer base {
-  :where(button, a, [tabindex]:not([tabindex='-1'])):focus {
-    outline: none;
-  }
-  :where(button, a, [tabindex]:not([tabindex='-1'])):focus-visible {
-    outline: 2px solid var(--color-tee-highlight);
-    outline-offset: 2px;
-  }
-  .skip-link {
-    position: absolute;
-    left: 0.75rem;
-    top: 0.5rem;
-    z-index: 200;
-    padding: 0.4rem 0.75rem;
-    border-radius: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-fairway-deep);
-    background: #f0e4c2;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    transform: translateY(-200%);
-    transition: transform 0.15s ease;
-  }
-  .skip-link:focus {
-    transform: translateY(0);
-    outline: 2px solid #fff;
-    outline-offset: 1px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .skip-link {
-      transition: none;
-    }
-  }
+:where(button, a, [tabindex]:not([tabindex='-1'])):focus { outline: none; }
+:where(button, a, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 3px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  .animate-pulse {
-    animation: none !important;
-    opacity: 0.4;
-  }
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.5rem;
+  z-index: 200;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--r-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-fairway-deep);
+  background: var(--color-yellow);
+  transform: translateY(-200%);
+  transition: transform var(--t);
 }
+.skip-link:focus { transform: translateY(0); }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.fade-in {
-  animation: fade-in 240ms ease-out;
+.fade-in { animation: fade-in 240ms ease-out; }
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+.pop { animation: pop 220ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-.count-skeleton {
+.text-balance { text-wrap: balance; }
+
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* === Unified press-button system =================================
+   Used by .cta-gold, .btn-blue, .btn-black, .btn-red.
+   Same radius, shadow, hover, press behaviour — only colours differ. */
+.btn-press {
+  border: none;
+  color: #FFFFFF;
+  letter-spacing: 0.015em;
+  font-family: var(--font-sans);
+  box-shadow:
+    inset 0 -2px 0 rgba(0, 0, 0, 0.22),
+    var(--sh-2);
+  transition: transform 100ms ease-out, box-shadow 100ms ease-out, filter 140ms ease-out;
+}
+.btn-press:hover { filter: brightness(1.06); }
+.btn-press:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    var(--sh-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-press { transition: none; }
+  .btn-press:active { transform: none; }
+}
+
+.cta-gold {
+  background: var(--color-yellow);
+  color: var(--color-fairway-deep);
+  box-shadow:
+    inset 0 -3px 0 var(--color-yellow-dark),
+    var(--sh-3);
+}
+.cta-gold:active {
+  box-shadow:
+    inset 0 -1px 0 var(--color-yellow-dark),
+    var(--sh-1);
+}
+
+.btn-blue   { background: var(--color-blue); }
+.btn-black  { background: var(--color-black); }
+.btn-red    { background: var(--color-red); }
+
+/* Excuse panel — coherent with the dark base */
+.excuse-panel {
+  background: var(--color-fairway-shadow);
+  border-radius: var(--r-lg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    var(--sh-2);
+}
+
+/* Race accent: yellow horizontal underline under the wordmark */
+.race-rule {
   display: inline-block;
-  min-width: 3rem;
-  min-height: 0.75em;
-  background: rgba(232, 200, 90, 0.12);
+  height: 3px;
+  width: 56px;
+  background: var(--color-yellow);
   border-radius: 2px;
 }
-@media (prefers-reduced-motion: reduce) {
-  .count-skeleton {
-    opacity: 0.4;
-  }
-}
 
-.text-balance {
-  text-wrap: balance;
-}
-
-.scrollbar-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.landing-card {
-  background: #f4efe5;
-  border: 1px solid #b8a995;
-  box-shadow: 3px 4px 0 rgba(15, 22, 16, 0.12);
-}
-
-/* Slight off-square “cut card” */
-.hand-card {
-  border-radius: 3px 2px 4px 2px;
-  transform: rotate(-0.2deg);
-}
-@media (min-width: 1024px) {
-  .hand-card {
-    transform: rotate(0.15deg);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hand-card {
-    transform: none;
-  }
-}
-
-.muted-rule {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  width: 100%;
-  max-width: 10rem;
-  margin-left: auto;
-  margin-right: auto;
+/* Checkered flag — race detail */
+.checker {
+  --c: rgba(245, 241, 232, 0.85);
+  background-image:
+    linear-gradient(45deg, var(--c) 25%, transparent 25%, transparent 75%, var(--c) 75%, var(--c)),
+    linear-gradient(45deg, var(--c) 25%, transparent 25%, transparent 75%, var(--c) 75%, var(--c));
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
 }

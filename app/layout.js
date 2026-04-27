@@ -1,28 +1,27 @@
 import './globals.css';
 
-const TAGLINE = 'A simple alibi for your round. Copy or share in one step.';
+const TAGLINE = 'Tap the button. Get a clubhouse-grade alibi for that round.';
 
 export const metadata = {
-  title: 'Bogey Blamer — Golf Excuse Generator',
+  title: 'Excuse Caddie — Golf Excuse Generator',
+  metadataBase: new URL('https://excusecaddie.xyz'),
   description: TAGLINE,
   openGraph: {
-    title: 'Bogey Blamer — Golf Excuse Generator',
+    title: 'Excuse Caddie',
     description: TAGLINE,
     type: 'website',
-    siteName: 'Bogey Blamer',
+    siteName: 'Excuse Caddie',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bogey Blamer — Golf Excuse Generator',
+    title: 'Excuse Caddie',
     description: TAGLINE,
   },
-  icons: {
-    icon: '/favicon.png',
-  },
+  icons: { icon: '/favicon.png' },
 };
 
 export const viewport = {
-  themeColor: '#1f3d2a',
+  themeColor: '#3D6149',
   width: 'device-width',
   initialScale: 1,
 };
@@ -30,10 +29,15 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className="min-h-dvh font-sans antialiased selection:bg-[#c9a227]/25 selection:text-white lg:h-dvh lg:max-h-dvh lg:overflow-hidden"
-        style={{ fontFeatureSettings: '"tnum" 1' }}
-      >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&display=swap"
+        />
+      </head>
+      <body className="h-dvh overflow-hidden selection:bg-white/30 selection:text-white">
         {children}
       </body>
     </html>
