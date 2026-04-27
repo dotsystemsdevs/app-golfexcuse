@@ -88,15 +88,13 @@ export default function HomePage() {
       <TopBanner />
 
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-5 py-4 sm:py-6 max-w-2xl mx-auto w-full">
-        {/* Wordmark + race-rule */}
+        {/* Wordmark */}
         <h1
-          className="text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-[0.95] tracking-[-0.02em] text-center inline-flex items-center gap-2.5 sm:gap-3"
-          style={{ fontFamily: 'var(--font-brand)', color: 'var(--color-cream)' }}
+          className="text-[2rem] sm:text-[2.6rem] lg:text-[3rem] leading-[0.95] tracking-[-0.035em] text-center font-extrabold"
+          style={{ color: 'var(--color-cream)' }}
         >
-          <span aria-hidden className="text-[0.85em] leading-none">⛳</span>
-          <span>Excuse Caddie</span>
+          Excuse Caddie
         </h1>
-        <span aria-hidden className="race-rule mt-3 sm:mt-3.5" />
 
         {/* Counter — scoreboard pill */}
         <div
@@ -157,7 +155,7 @@ export default function HomePage() {
           {ctaLabel}
         </button>
 
-        {/* Race share row — 3 colour pills, same shape, same shadow */}
+        {/* Race share row */}
         <div className="mt-4 sm:mt-5 flex items-center justify-center gap-2 sm:gap-2.5" aria-label="Share">
           <SharePill href={fbUrl} variant="blue" ariaLabel="Share on Facebook">
             <FbIcon /> <span>Facebook</span>

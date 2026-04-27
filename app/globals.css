@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "DM Serif Display", "Playfair Display", "Iowan Old Style", Georgia, serif;
-  --font-brand: "Archivo Black", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-sans);
+  --font-brand: var(--font-sans);
 
-  /* Fairway base */
-  --color-fairway: #3D6149;
-  --color-fairway-soft: #4A7457;
-  --color-fairway-deep: #1F3127;
-  --color-fairway-shadow: rgba(15, 30, 22, 0.55);
+  /* Fairway base — sunlit fresh-grass green */
+  --color-fairway: #508560;
+  --color-fairway-soft: #649873;
+  --color-fairway-deep: #1F3528;
+  --color-fairway-shadow: rgba(12, 24, 16, 0.38);
 
   /* Race accents — disciplined four-color system */
-  --color-yellow: #E8C547;        /* primary action, counter highlight */
-  --color-yellow-dark: #B8961E;   /* yellow shadow / press state */
-  --color-blue: #2E5AA8;          /* Facebook share */
+  --color-yellow: #E8C547;
+  --color-yellow-dark: #B8961E;
+  --color-blue: #2E5AA8;
   --color-blue-dark: #224178;
-  --color-black: #14171A;          /* X share, deep accents */
+  --color-black: #14171A;
   --color-black-dark: #08090B;
-  --color-red: #C8362A;            /* destructive / pocket-it / objection */
+  --color-red: #C8362A;
   --color-red-dark: #9E2820;
 
   --color-cream: #F5F1E8;
 
-  /* Aliases (legacy refs) */
+  /* Aliases for legacy refs */
   --color-grass: var(--color-fairway);
   --color-grass-deep: var(--color-fairway-deep);
   --color-grass-shadow: var(--color-fairway-shadow);
@@ -47,18 +47,15 @@
   --color-scorecard: var(--color-fairway-shadow);
   --color-ink: #FFFFFF;
 
-  /* One radius scale */
   --r-sm: 8px;
   --r-md: 14px;
   --r-lg: 18px;
   --r-pill: 999px;
 
-  /* One shadow scale */
   --sh-1: 0 2px 6px rgba(0, 0, 0, 0.10);
   --sh-2: 0 6px 18px rgba(0, 0, 0, 0.14);
   --sh-3: 0 12px 32px rgba(0, 0, 0, 0.18);
 
-  /* One transition */
   --t: 150ms ease-out;
 }
 
@@ -99,7 +96,7 @@ button, a {
   color: var(--color-fairway-deep);
   background: var(--color-yellow);
   transform: translateY(-200%);
-  transition: transform var(--t);
+  transition: transform 0.15s ease;
 }
 .skip-link:focus { transform: translateY(0); }
 
@@ -124,13 +121,10 @@ button, a {
 }
 
 .text-balance { text-wrap: balance; }
-
 .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-/* === Unified press-button system =================================
-   Used by .cta-gold, .btn-blue, .btn-black, .btn-red.
-   Same radius, shadow, hover, press behaviour — only colours differ. */
+/* Unified press-button system */
 .btn-press {
   border: none;
   color: #FFFFFF;
@@ -170,30 +164,10 @@ button, a {
 .btn-black  { background: var(--color-black); }
 .btn-red    { background: var(--color-red); }
 
-/* Excuse panel — coherent with the dark base */
 .excuse-panel {
   background: var(--color-fairway-shadow);
   border-radius: var(--r-lg);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     var(--sh-2);
-}
-
-/* Race accent: yellow horizontal underline under the wordmark */
-.race-rule {
-  display: inline-block;
-  height: 3px;
-  width: 56px;
-  background: var(--color-yellow);
-  border-radius: 2px;
-}
-
-/* Checkered flag — race detail */
-.checker {
-  --c: rgba(245, 241, 232, 0.85);
-  background-image:
-    linear-gradient(45deg, var(--c) 25%, transparent 25%, transparent 75%, var(--c) 75%, var(--c)),
-    linear-gradient(45deg, var(--c) 25%, transparent 25%, transparent 75%, var(--c) 75%, var(--c));
-  background-size: 6px 6px;
-  background-position: 0 0, 3px 3px;
 }
