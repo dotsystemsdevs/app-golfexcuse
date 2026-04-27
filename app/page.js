@@ -10,15 +10,38 @@ import { getExcuseId } from '@/lib/excuse-ids';
 import { fetchGeneratedTotal, trackGenerated, voteForExcuse } from '@/lib/api';
 import { playSplash } from '@/lib/sounds';
 
-const FALLBACK_TOTAL = 1247;
+const FALLBACK_TOTAL = 0;
 
+const CTA_FIRST = 'Take the Mulligan';
 const CTA_LABELS = [
-  'Take the Mulligan',
   'Another Mulligan',
-  'Tee Up Another',
-  'One More for the Card',
-  'Final Ruling',
+  'Roll a new one',
+  'Lie a little better',
+  'Convince me',
+  'Spin it again',
+  'Lawyer up',
+  'Plead the fifth',
+  'Drop a new ball',
+  'Foot wedge it',
+  'Try the back nine',
+  'Cope harder',
+  'Punch out',
+  'Last one, I swear',
+  'One more, on me',
+  'Tell the truth, kidding',
+  'Sandbag it',
+  'From the drop zone',
+  'Take a free drop',
+  'Replay that shot',
+  'Find a softer truth',
 ];
+
+function pickRandomLabel(prev) {
+  if (CTA_LABELS.length <= 1) return CTA_LABELS[0];
+  let next;
+  do { next = CTA_LABELS[Math.floor(Math.random() * CTA_LABELS.length)]; } while (next === prev);
+  return next;
+}
 
 export default function HomePage() {
   const [excuse, setExcuse] = useState(null);
@@ -28,6 +51,8 @@ export default function HomePage() {
   const [copied, setCopied] = useState(false);
   const [genCount, setGenCount] = useState(0);
   const [globalTotal, setGlobalTotal] = useState(null);
+
+  const [ctaLabel, setCtaLabel] = useState(CTA_FIRST);
 
   const seenExcuses = useRef(new Set());
   const dailyExcuse = useMemo(() => getDailyExcuse(EXCUSES), []);
@@ -52,6 +77,7 @@ export default function HomePage() {
     setVote(null);
     setHasGenerated(true);
     setGenCount((c) => c + 1);
+    setCtaLabel((prev) => pickRandomLabel(prev));
     setGlobalTotal((cur) => (cur == null ? cur : cur + 1));
     trackGenerated().then((t) => {
       if (typeof t === 'number' && t > 0) setGlobalTotal(t);
@@ -79,8 +105,6 @@ export default function HomePage() {
       setTimeout(() => setCopied(false), 1800);
     } catch {}
   }, [cardText, baseUrl]);
-
-  const ctaLabel = !hasGenerated ? CTA_LABELS[0] : CTA_LABELS[Math.min(genCount, CTA_LABELS.length - 1)];
 
   return (
     <main className="relative flex h-dvh max-h-dvh overflow-hidden flex-col" id="main">
