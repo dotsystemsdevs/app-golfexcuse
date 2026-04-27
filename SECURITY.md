@@ -1,5 +1,18 @@
 # Security Policy
 
+## Reporting a vulnerability
+
+Please **do not** open a public issue for security-sensitive problems.
+
+Instead:
+
+- Open a **GitHub Security Advisory**, or
+- Email the maintainers (if listed on the GitHub org/profile).
+
+We’ll acknowledge receipt and work on a fix as quickly as possible.
+
+# Security Policy
+
 ## Supported Versions
 
 | Version | Supported |

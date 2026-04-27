@@ -51,7 +51,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open `http://localhost:3000`.
 
 The site runs without Redis — counter shows 0 and leaderboard is empty until you add credentials. To wire up storage:
 
@@ -108,6 +108,11 @@ All API routes return `{ ..., persisted: boolean }` so the client knows whether 
 ## Acknowledgements
 
 Sound effects from [freesound.org](https://freesound.org/) (CC0 / Community).
+
+## Contributing
+
+- Read `CONTRIBUTING.md`
+- Add excuses via the “Add more excuses” issue template, or PR directly to `lib/excuses.js`
 
 ## License
 

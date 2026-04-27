@@ -1,0 +1,44 @@
+name: Add more excuses
+description: Suggest new alibis to add to the pool
+title: "Excuses: <short theme>"
+labels:
+  - excuses
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks — keep it short, punchy, and golf-y.
+  - type: textarea
+    id: excuses
+    attributes:
+      label: Proposed excuses
+      description: One per line. Keep them under ~60 chars when possible.
+      placeholder: |
+        The greens were aerated.
+        Tee box was uneven.
+        The wind changed mid-swing.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Body
+        - Nerves
+        - Kit
+        - Weather
+        - Course
+        - Distractions
+        - Luck
+        - Swing
+        - Other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes (optional)
+      description: Any context, source, or why it’s funny.
+      placeholder: "Heard it from my playing partner…"
+
