@@ -200,9 +200,9 @@ export default function HomePage() {
 function ThumbButton({ direction, active, onClick }) {
   const isUp = direction === 'up';
   const bg = isUp ? 'var(--color-green)' : 'var(--color-red)';
-  const background = active ? bg : `color-mix(in srgb, ${bg} 16%, white 84%)`;
-  const color = active ? '#fff' : `color-mix(in srgb, ${bg} 55%, #1A1916 45%)`;
-  const ring = active ? 'transparent' : 'rgba(26,25,22,0.12)';
+  const background = active ? bg : `color-mix(in srgb, ${bg} 62%, white 38%)`;
+  const color = active ? '#fff' : `color-mix(in srgb, ${bg} 15%, #1A1916 85%)`;
+  const ring = active ? 'transparent' : 'rgba(26,25,22,0.16)';
 
   return (
     <button
