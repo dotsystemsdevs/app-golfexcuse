@@ -1,79 +1,116 @@
-# Bogey Blamer (web)
+# Excuse Caddie
 
 <p align="center">
-  <img src="public/logo-dark.png" alt="Bogey Blamer" width="100" height="100" />
+  <strong>A quiet alibi service for the modern golfer.</strong>
 </p>
 
-**Random golf alibis in the browser** — one tap to draw a new line, vote, and share.
+<p align="center">
+  <a href="https://excusecaddie.xyz">excusecaddie.xyz</a>
+</p>
 
-This repository is the **Next.js 15** web app. The older React Native / Expo project files have been removed; if you need that history, use `git log` and earlier commits on `main`.
+One tap. One ironclad excuse for the round you'd rather forget. Shanked drives, lipped-out putts, mysteriously missing balls — the Caddie has a story for it.
+
+> _"Trees jumped out."_  
+> _— Today's ruling, no. 1,247_
 
 ---
+
+## What it is
+
+A single-screen web app: 280+ hand-curated golf excuses, weighted random pick, weekly leaderboard, splash sound effects, and one big "Take the Mulligan" button. No accounts, no tracking, no scroll.
+
+This repo previously hosted a React Native / Expo mobile app; it has been retired and rewritten as a Next.js website. The mobile-app history is preserved in earlier commits if you want to dig.
 
 ## Features
 
-- **Large excuse pool** (see `lib/excuses.js`) with weighted random — avoids repeating the same line you already see
-- **Live “excuses in play” counter** (Upstash / Vercel KV) with a sensible fallback if Redis is offline
-- **Weekly top-3 strip** in the header (`/api/leaderboard`)
-- **Thumbs** per excuse (`/api/vote`) with Upstash-stored tallies
-- **Share** — Facebook, X, and copy-to-clipboard
+- **280+ excuses** across 9 categories (`lib/excuses.js`), weighted random — never repeats consecutively
+- **Live counter** of excuses served (Upstash Redis `INCR`)
+- **Weekly Top 3 banner** voted by the community
+- **Thumbs up/down** per excuse, with toggle/switch (Redis HASH per device ID)
+- **10 random golf sounds** on each click (real freesound.org clips, auto-detected from `/public/sounds/`)
+- **Rotating CTA copy** — 20 different golf-bro labels after the first click
+- **Share row** — Facebook, X, copy-to-clipboard
+- **Single-screen, no scroll** — fits any viewport, mobile through 4K
 
----
-
-## Tech stack
+## Tech
 
 | | |
 |--|--|
-| Framework | [Next.js](https://nextjs.org/) 15 (App Router) |
-| UI | [Tailwind CSS](https://tailwindcss.com/) v4 |
-| Data (optional) | [Upstash Redis](https://upstash.com/) for counts, votes, weekly leaderboard |
-| Node | 18+ recommended |
+| Framework | Next.js 15 (App Router, React 19) |
+| Styling | Tailwind CSS v4 |
+| Storage | Upstash Redis (sorted sets + hashes for leaderboards & dedup) |
+| Hosting | Vercel |
+| Sounds | Web `Audio` API + freesound.org CC0 clips |
 
----
-
-## Development
+## Develop locally
 
 ```bash
-git clone https://github.com/dotsystemsdevs/app-golfexcuse.git
-cd app-golfexcuse
+git clone https://github.com/dotsystemsdevs/excuse-caddie.git
+cd excuse-caddie
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).  
-Copy `.env.example` to `.env.local` and add Upstash (or Vercel KV) credentials for live counts and voting; the app still runs with fallbacks if Redis is not configured.
+Open http://localhost:3000.
+
+The site runs without Redis — counter shows 0 and leaderboard is empty until you add credentials. To wire up storage:
+
+1. Create a free Upstash Redis at https://console.upstash.com/redis
+2. Copy `.env.example` to `.env.local` and paste in `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+3. Restart `npm run dev`
 
 ```bash
 npm run build   # production build
-npm run start   # after build
+npm run start   # serve the built app
 npm run lint
 ```
-
----
 
 ## Project layout
 
 ```
-app/              App Router: page, layout, global CSS, API routes
+app/
+  page.js              The whole UI — wordmark, counter, excuse, CTA, share
+  layout.js            Metadata + font loading (Inter via Google Fonts)
+  globals.css          Tailwind theme + race-color palette + shadow scale
   api/
-    generated/   POST — bump global excuse count, GET current total
-    vote/         POST — vote on an excuse id
-    leaderboard/  GET — weekly (or other range) top excuses
-components/       CountUp, Top banner, footer
-lib/              Excuses, IDs, client API helpers, pickDifferentWeighted, etc.
-public/           Static assets (e.g. logo, favicon)
+    generated/route.js GET total / POST INCR — global excuse counter
+    vote/route.js      POST { excuseId, deviceId, direction } — toggle vote
+    leaderboard/route.js GET ?range=weekly|monthly|all — top excuses
+    sounds/route.js    GET — auto-list of all mp3s in /public/sounds/
+components/
+  TopBanner.js         Weekly top 3 strip
+  Footer.js            GitHub + Tip the caddie
+  CountUp.js           Animated number counter
+lib/
+  excuses.js           The 280+ excuses
+  utils.js             pickWeighted, pickDifferentWeighted helpers
+  excuse-ids.js        Deterministic hash → excuse text map
+  redis.js             Upstash client + key helpers
+  api.js               Browser-side fetch wrappers
+  sounds.js            Random sound playback (auto-detected from public/sounds/)
+public/
+  sounds/              Drop more .mp3 files here — they'll be picked up automatically
+  logo-*.png           Logos
 ```
 
----
+## API
 
-## API environment
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/generated` | `GET` | Read total excuses dispensed (Redis counter) |
+| `/api/generated` | `POST` | Increment counter; returns new total |
+| `/api/vote` | `POST` | Body: `{ excuseId, deviceId, direction: 'up' \| 'down' }` — toggle/switch vote |
+| `/api/leaderboard` | `GET` | Query: `?range=weekly\|monthly\|all` — top 20 by net score |
+| `/api/sounds` | `GET` | Auto-list of mp3s in `/public/sounds/` |
 
-See `.env.example`. Vercel KV often injects `KV_REST_API_URL` and `KV_REST_API_TOKEN`. Otherwise use Upstash’s `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` as supported in the API code.
+All API routes return `{ ..., persisted: boolean }` so the client knows whether Redis was reachable.
 
----
+## Acknowledgements
+
+Sound effects from [freesound.org](https://freesound.org/) (CC0 / Community).
 
 ## License
 
-MIT — see `package.json` for author and repository fields.
+MIT.
 
-The mobile app and store metadata that used to live in this repo are no longer present on this branch; this README documents the **web** edition only.
+Made by [Dot](https://github.com/dotsystemsdevs). Like it? [Tip the caddie](https://buymeacoffee.com/dotdevs).

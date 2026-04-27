@@ -1,7 +1,7 @@
 {
-  "name": "bogey-blamer-web",
+  "name": "excuse-caddie",
   "version": "1.0.0",
-  "description": "Bogey Blamer — random golf excuses. Web edition.",
+  "description": "Excuse Caddie — a quiet alibi service for the modern golfer. Random golf excuses on the web.",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,8 +26,12 @@
   },
   "license": "MIT",
   "author": "Dot Systems",
+  "homepage": "https://excusecaddie.xyz",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dotsystemsdevs/app-golfexcuse.git"
+    "url": "https://github.com/dotsystemsdevs/excuse-caddie.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dotsystemsdevs/excuse-caddie/issues"
   }
 }

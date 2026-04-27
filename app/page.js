@@ -120,28 +120,20 @@ export default function HomePage() {
           Excuse Caddie
         </h1>
 
-        {/* Counter — scoreboard pill */}
-        <div
-          className="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full"
-          style={{
-            background: 'rgba(0,0,0,0.22)',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
+        {/* Counter — quiet inline text, no bubble */}
+        <p
+          className="mt-3 sm:mt-4 text-[13px] sm:text-[14px] tabular-nums text-center"
+          style={{ color: 'rgba(245,241,232,0.55)' }}
           aria-live="polite"
         >
           <span
-            className="font-bold tabular-nums text-[13px] sm:text-[14px]"
-            style={{ color: 'var(--color-yellow)', letterSpacing: '0.06em' }}
+            className="font-semibold"
+            style={{ color: 'var(--color-yellow)', letterSpacing: '0.01em' }}
           >
             <CountUp value={globalTotal !== null ? globalTotal : FALLBACK_TOTAL} />
           </span>
-          <span
-            className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em]"
-            style={{ color: 'rgba(245,241,232,0.62)' }}
-          >
-            Alibis dispensed
-          </span>
-        </div>
+          <span className="font-medium"> served — and counting</span>
+        </p>
 
         {/* Excuse panel */}
         <section

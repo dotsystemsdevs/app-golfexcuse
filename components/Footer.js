@@ -1,6 +1,6 @@
 'use client';
 
-const GITHUB_URL = 'https://github.com/dotsystemsdevs/app-golfexcuse';
+const GITHUB_URL = 'https://github.com/dotsystemsdevs/excuse-caddie';
 const BMC_URL = 'https://buymeacoffee.com/dotdevs';
 
 export default function Footer() {

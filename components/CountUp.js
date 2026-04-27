@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-export default function CountUp({ value, duration = 1600 }) {
+export default function CountUp({ value, duration = 3500 }) {
   const [display, setDisplay] = useState(0);
   const lastValueRef = useRef(0);
 
