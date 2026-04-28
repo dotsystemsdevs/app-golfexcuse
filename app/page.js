@@ -5,7 +5,7 @@ import TopBanner from '@/components/TopBanner';
 import Footer from '@/components/Footer';
 import CountUp from '@/components/CountUp';
 import { track } from '@vercel/analytics';
-import { EXCUSES, EXCUSE_COUNT, getDailyExcuse } from '@/lib/excuses';
+import { EXCUSES, EXCUSE_COUNT, getDailyExcuse, getExcuseNumber } from '@/lib/excuses';
 import { getExcuseText, pickDifferentWeighted } from '@/lib/utils';
 import { getExcuseId } from '@/lib/excuse-ids';
 import { fetchGeneratedTotal, trackGenerated, voteForExcuse } from '@/lib/api';
@@ -129,17 +129,39 @@ export default function HomePage({ initialPickNumber = null } = {}) {
     }
   }, [currentExcuseId]);
 
-  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${cardText}" — my official ruling on that round.`)}&url=${encodeURIComponent(baseUrl)}`;
-  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(baseUrl)}&quote=${encodeURIComponent(`"${cardText}"`)}`;
+  const excuseNumber = getExcuseNumber(cardText);
+  const shareUrl = baseUrl && excuseNumber ? `${baseUrl}/${excuseNumber}` : baseUrl;
+  const shareTitle = `"${cardText}" — Excuse Caddie`;
+  const shareTextX = `"${cardText}" — my official ruling on that round.`;
+  const redditTitle = `"${cardText}" — Excuse Caddie ruling #${excuseNumber || ''}`.trim();
+
+  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextX)}&url=${encodeURIComponent(shareUrl)}`;
+  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(`"${cardText}"`)}`;
+  const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(redditTitle)}`;
+
+  const canNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   const handleCopy = useCallback(async () => {
+    const payload = `"${cardText}" — Excuse Caddie ${shareUrl}`;
+    if (canNativeShare) {
+      try {
+        await navigator.share({ title: shareTitle, text: `"${cardText}"`, url: shareUrl });
+        track('share_copy', { excuseId: currentExcuseId || 'unknown', success: true, surface: 'native_share' });
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          track('share_copy', { excuseId: currentExcuseId || 'unknown', success: false, surface: 'native_share', reason: 'cancelled' });
+          return;
+        }
+      }
+    }
     try {
-      await navigator.clipboard.writeText(`"${cardText}" — Excuse Caddie ${baseUrl}`);
+      await navigator.clipboard.writeText(payload);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
-      track('share_copy', { excuseId: currentExcuseId || 'unknown', success: true });
+      track('share_copy', { excuseId: currentExcuseId || 'unknown', success: true, surface: 'clipboard' });
     } catch {}
-  }, [cardText, baseUrl, currentExcuseId]);
+  }, [cardText, shareUrl, shareTitle, currentExcuseId, canNativeShare]);
 
   return (
     <main className="relative flex h-dvh max-h-dvh overflow-hidden flex-col" id="main">
@@ -209,14 +231,14 @@ export default function HomePage({ initialPickNumber = null } = {}) {
         </button>
 
         {/* Race share row */}
-        <div className="mt-4 sm:mt-5 flex items-center justify-center gap-2 sm:gap-2.5" aria-label="Share">
+        <div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5" aria-label="Share">
           <SharePill
-            href={fbUrl}
-            variant="blue"
-            ariaLabel="Share on Facebook"
-            onClick={() => track('share_open', { network: 'facebook', excuseId: currentExcuseId || 'unknown' })}
+            href={redditUrl}
+            variant="orange"
+            ariaLabel="Share on Reddit"
+            onClick={() => track('share_open', { network: 'reddit', excuseId: currentExcuseId || 'unknown' })}
           >
-            <FbIcon /> <span>Facebook</span>
+            <RedditIcon /> <span>Reddit</span>
           </SharePill>
           <SharePill
             href={xUrl}
@@ -227,12 +249,20 @@ export default function HomePage({ initialPickNumber = null } = {}) {
             <XIcon /> <span>X</span>
           </SharePill>
           <SharePill
+            href={fbUrl}
+            variant="blue"
+            ariaLabel="Share on Facebook"
+            onClick={() => track('share_open', { network: 'facebook', excuseId: currentExcuseId || 'unknown' })}
+          >
+            <FbIcon /> <span>Facebook</span>
+          </SharePill>
+          <SharePill
             onClick={handleCopy}
             variant="red"
-            ariaLabel={copied ? 'Pocketed' : 'Pocket this excuse'}
+            ariaLabel={copied ? 'Pocketed' : (canNativeShare ? 'Share this excuse' : 'Pocket this excuse')}
           >
-            {copied ? <CheckIcon /> : <CopyIcon />}
-            <span>{copied ? 'Pocketed' : 'Pocket it'}</span>
+            {copied ? <CheckIcon /> : (canNativeShare ? <ShareIcon /> : <CopyIcon />)}
+            <span>{copied ? 'Pocketed' : (canNativeShare ? 'Share' : 'Pocket it')}</span>
           </SharePill>
         </div>
       </div>
@@ -288,6 +318,7 @@ function SharePill({ href, onClick, variant, ariaLabel, children }) {
   const variantClass = variant === 'blue' ? 'btn-blue'
     : variant === 'black' ? 'btn-black'
     : variant === 'red' ? 'btn-red'
+    : variant === 'orange' ? 'btn-orange'
     : '';
 
   return (
@@ -330,6 +361,24 @@ function CheckIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function RedditIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
     </svg>
   );
 }
