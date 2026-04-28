@@ -84,6 +84,52 @@ const STRUCTURED_DATA = {
       url: 'https://excusecaddie.xyz/',
       logo: 'https://excusecaddie.xyz/logo.png',
     },
+    {
+      '@type': 'FAQPage',
+      '@id': 'https://excusecaddie.xyz/#faq',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is Excuse Caddie?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `Excuse Caddie is a free random golf excuse generator. Tap one button and get an ironclad alibi for the round you would rather forget — shanked drives, three-putts, lost balls. ${EXCUSE_COUNT} hand-curated golf excuses across 8 categories.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How many golf excuses are there?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `There are currently ${EXCUSE_COUNT} excuses, weighted so the same line never repeats back-to-back. Every excuse also has its own URL (excusecaddie.xyz/1 through /${EXCUSE_COUNT}) so you can deep-link directly to a specific ruling.`,
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do I need an account to use Excuse Caddie?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'No. There are no accounts, no signups, and no tracking beyond anonymous Vercel Analytics events for product improvement. The whole site is one screen, one button.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I contribute new excuses?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. The project is open source on GitHub at github.com/dotsystemsdevs/excuse-caddie. Add lines to lib/excuses.js or open an issue with the "Add more excuses" template.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Is Excuse Caddie free?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Free, no ads, no paywalls. The maintainer accepts tips via Buy Me a Coffee but nothing on the site requires payment.',
+          },
+        },
+      ],
+    },
   ],
 };
 
@@ -102,7 +148,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
         />
       </head>
-      <body className="h-dvh overflow-hidden selection:bg-white/30 selection:text-white">
+      <body className="min-h-dvh selection:bg-white/30 selection:text-white">
         {children}
         <Analytics />
       </body>
