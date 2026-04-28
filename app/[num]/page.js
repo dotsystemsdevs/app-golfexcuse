@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
   const n = parseNum(num);
   if (!n) return {};
   const text = EXCUSES[n - 1].text;
-  const title = `"${text}" — Golf Excuse #${n} | Excuse Caddie`;
+  const title = `"${text}" — Golf Excuse #${n}`;
   const description = `${text} A ready-made golf alibi from Excuse Caddie — ${EXCUSE_COUNT} ironclad excuses for that round.`;
   const url = `${SITE_URL}/${n}`;
 
