@@ -11,7 +11,6 @@ export const CATEGORIES = [
 ];
 
 export const EXCUSES = [
-  // ── Physical ──────────────────────────────────────────────────────────
   { text: "Leg day.", tags: ['physical'] },
   { text: "Back's tight.", tags: ['physical'] },
   { text: "Two hours of sleep.", tags: ['physical'] },
@@ -31,7 +30,6 @@ export const EXCUSES = [
   { text: "Glutes aren't firing.", tags: ['physical'] },
   { text: "Gym this morning.", tags: ['physical'] },
 
-  // ── Mental ────────────────────────────────────────────────────────────
   { text: "Working on something new.", tags: ['mental'] },
   { text: "Overthinking the putt.", tags: ['mental'] },
   { text: "I play better alone.", tags: ['mental'] },
@@ -60,7 +58,6 @@ export const EXCUSES = [
   { text: "Didn't play as a kid.", tags: ['mental'] },
   { text: "Over-practiced.", tags: ['mental'] },
 
-  // ── Equipment ─────────────────────────────────────────────────────────
   { text: "Wrong club.", tags: ['equipment'] },
   { text: "Need a ball that goes straight.", tags: ['equipment'] },
   { text: "Defective ball.", tags: ['equipment'] },
@@ -97,7 +94,6 @@ export const EXCUSES = [
   { text: "Forgot to charge my clubs.", tags: ['equipment'] },
   { text: "GPS said 150. Rangefinder said 145. Hit 200.", tags: ['equipment'] },
 
-  // ── Weather ───────────────────────────────────────────────────────────
   { text: "Barometric pressure.", tags: ['weather'] },
   { text: "The glare.", tags: ['weather'] },
   { text: "Too hot.", tags: ['weather'] },
@@ -117,7 +113,6 @@ export const EXCUSES = [
   { text: "Wind carried it over.", tags: ['weather'] },
   { text: "Frickin' wind!", tags: ['weather'] },
 
-  // ── Course Conditions ─────────────────────────────────────────────────
   { text: "Course was too wet.", tags: ['course'] },
   { text: "Uneven greens.", tags: ['course'] },
   { text: "Grass was wrong length.", tags: ['course'] },
@@ -143,7 +138,6 @@ export const EXCUSES = [
   { text: "Ground too soft.", tags: ['course'] },
   { text: "Lie was worse than it looked.", tags: ['course'] },
 
-  // ── Distraction ───────────────────────────────────────────────────────
   { text: "Someone talked in my backswing.", tags: ['distraction'] },
   { text: "Someone hollered.", tags: ['distraction'] },
   { text: "Heard a glove come off.", tags: ['distraction'] },
@@ -173,7 +167,6 @@ export const EXCUSES = [
   { text: "Phone vibrated.", tags: ['distraction'] },
   { text: "Did you hear that???", tags: ['distraction'] },
 
-  // ── Bad Luck ──────────────────────────────────────────────────────────
   { text: "Rolled back into the bunker.", tags: ['bad_luck'] },
   { text: "Unlucky bounce.", tags: ['bad_luck'] },
   { text: "Bounces weren't going my way.", tags: ['bad_luck'] },
@@ -192,7 +185,6 @@ export const EXCUSES = [
   { text: "Perfect if that tree wasn't there.", tags: ['bad_luck'] },
   { text: "Ball had other plans.", tags: ['bad_luck'] },
 
-  // ── Skill Issue ───────────────────────────────────────────────────────
   { text: "New swing, bedding it in.", tags: ['skill'] },
   { text: "Inconsistency is my trademark.", tags: ['skill'] },
   { text: "Fly fishing or golfing?", tags: ['skill'] },
@@ -217,7 +209,6 @@ export const EXCUSES = [
   { text: "Right speed, wrong line.", tags: ['skill'] },
   { text: "Left my draws at home.", tags: ['skill'] },
 
-  // ── Delusion → redistributed ────────────────────────────────────────
   { text: "Good bogey hole.", tags: ['mental'] },
   { text: "Not losing my Tour card.", tags: ['mental'] },
   { text: "I usually slice, why is it straight?", tags: ['mental'] },
@@ -248,7 +239,6 @@ export const EXCUSES = [
   { text: "Playing it like the architect intended.", tags: ['course'] },
   { text: "Paid for the whole course.", tags: ['mental'] },
 
-  // ── Absurd → redistributed ──────────────────────────────────────────
   { text: "Got hit by a car.", tags: ['bad_luck'] },
   { text: "Underwear riding up.", tags: ['distraction'] },
   { text: "Snake might be in there.", tags: ['distraction'] },
@@ -256,7 +246,7 @@ export const EXCUSES = [
   { text: "Standing too close to the course.", tags: ['bad_luck'] },
   { text: "Wind in my eyes.", tags: ['weather'] },
   { text: "Pick up for a double?", tags: ['bad_luck'] },
-  { text: "Told Beyonc\u00e9 not to text me.", tags: ['distraction'] },
+  { text: "Told Beyoncé not to text me.", tags: ['distraction'] },
   { text: "Earth's rotation.", tags: ['bad_luck'] },
   { text: "Left-handed ball.", tags: ['equipment'] },
   { text: "Born insufficiently talented.", tags: ['skill'] },
@@ -272,10 +262,108 @@ export const EXCUSES = [
   { text: "I blinked.", tags: ['distraction'] },
   { text: "Pulled a muscle reaching for scorecard.", tags: ['physical'] },
   { text: "Blamed the pants.", tags: ['equipment'] },
-  { text: "LOFT \u2014 lack of talent.", tags: ['skill'] },
+  { text: "LOFT — lack of talent.", tags: ['skill'] },
   { text: "Need the bathroom.", tags: ['distraction'] },
   { text: "Spacetime bends left around my driver.", tags: ['bad_luck'] },
   { text: "Better if I was better at golf.", tags: ['skill'] },
   { text: "I was in the pool!", tags: ['distraction'] },
   { text: "Earth rotated under it.", tags: ['bad_luck'] },
+  { text: "Get lessons", tags: ['mental'] },
+  { text: "I’ve got a hip thing from High School baseball", tags: ['physical'] },
+  { text: "I'm really getting my moneys worth", tags: ['mental'] },
+  { text: "At least I get to play more golf than you", tags: ['mental'] },
+  { text: "That's where the hole is next week.", tags: ['course'] },
+  { text: "Gravity was unusually strong today", tags: ['bad_luck'] },
+  { text: "I'm working through a swing change", tags: ['skill'] },
+  { text: "Wind grabbed it out of the air", tags: ['weather'] },
+  { text: "Had to be mud on that ball", tags: ['course'] },
+  { text: "I just started using these new balls, and they are NOT what I am used to", tags: ['equipment'] },
+  { text: "Did you hear that?!? Right in my backswing…..", tags: ['distraction'] },
+  { text: "I think the GPS on these carts is WAY off", tags: ['equipment'] },
+  { text: "My neck is so stiff, I think I slept wrong last night", tags: ['physical'] },
+  { text: "This tee box is not level at all", tags: ['course'] },
+  { text: "Can’t believe I hit it straight, that never happens to me!", tags: ['mental'] },
+  { text: "Bird chirped in my backswing", tags: ['distraction'] },
+  { text: "Accidentally farted in the backswing instead of the down swing.", tags: ['distraction'] },
+  { text: "Something's wrong with this club", tags: ['equipment'] },
+  { text: "I didn't account for the Coriolis effect.", tags: ['bad_luck'] },
+  { text: "Still figuring these clubs out", tags: ['equipment'] },
 ];
+
+export const EXCUSE_COUNT = EXCUSES.length;
+
+const TEXT_TO_NUMBER = new Map(EXCUSES.map((e, i) => [e.text, i + 1]));
+
+export function getExcuseNumber(text) {
+  return TEXT_TO_NUMBER.get(text) || null;
+}
+
+export const CATEGORY_KEYS = CATEGORIES.filter((c) => c.key !== 'all').map((c) => c.key);
+
+export const CATEGORY_META = {
+  physical: {
+    label: 'Body',
+    headline: 'Body & Injury Excuses',
+    blurb: 'Tight back, dead legs, two hours of sleep. The classics for when the body is the alibi.',
+  },
+  mental: {
+    label: 'Nerves',
+    headline: 'Mental Game Excuses',
+    blurb: 'Overthinking the putt, no warm-up, working on something new. For when the round was lost between the ears.',
+  },
+  equipment: {
+    label: 'Kit',
+    headline: 'Equipment Excuses',
+    blurb: 'Wrong club, defective ball, twisted putter. Blame the gear — that is what it is for.',
+  },
+  weather: {
+    label: 'Weather',
+    headline: 'Weather Excuses',
+    blurb: 'Wind, glare, barometric pressure, suspicious humidity. The atmosphere is rarely innocent.',
+  },
+  course: {
+    label: 'Course',
+    headline: 'Course Condition Excuses',
+    blurb: 'Aerated greens, fast carts, unmown rough. The golf course did not want you to score.',
+  },
+  distraction: {
+    label: 'Distractions',
+    headline: 'Distraction Excuses',
+    blurb: 'A bird, a fart, a coin in the next group. Something moved at the wrong moment.',
+  },
+  bad_luck: {
+    label: 'Luck',
+    headline: 'Bad Luck Excuses',
+    blurb: 'Rub-of-the-green rulings — the ball did its own thing.',
+  },
+  skill: {
+    label: 'Swing',
+    headline: 'Swing Excuses',
+    blurb: 'Mechanics, tempo, a backswing that left town. For days the swing simply was not there.',
+  },
+};
+
+export function getExcusesByTag(tag) {
+  return EXCUSES
+    .map((e, i) => ({ text: e.text, tags: e.tags, number: i + 1 }))
+    .filter((e) => Array.isArray(e.tags) && e.tags.includes(tag));
+}
+
+export const LOADING_MESSAGES = [
+  'Consulting the caddie…',
+  'Checking the rulebook…',
+  'One moment…',
+  'Preparing your excuse…',
+  'Almost there…',
+  'Drawing a new card…',
+];
+
+export function getDailyExcuse(excuses) {
+  const today = new Date().toISOString().slice(0, 10);
+  let hash = 0;
+  for (let i = 0; i < today.length; i++) {
+    hash = ((hash << 5) - hash) + today.charCodeAt(i);
+    hash |= 0;
+  }
+  return excuses[Math.abs(hash) % excuses.length];
+}

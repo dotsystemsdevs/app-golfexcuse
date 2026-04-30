@@ -1,26 +1,14 @@
-/**
- * @param {readonly any[]} list
- * @returns {any}
- */
 export function pickRandom(list) {
   if (!Array.isArray(list) || list.length === 0) return '';
   return list[Math.floor(Math.random() * list.length)] ?? '';
 }
 
-/**
- * Weighted random pick — unseen items are 5× more likely.
- * Works with both plain strings and { text, tags } objects.
- * @param {readonly any[]} list
- * @param {Set} seenSet - mutable Set tracking seen items
- * @returns {any}
- */
 export function pickWeighted(list, seenSet) {
   if (!Array.isArray(list) || list.length === 0) return '';
 
   const UNSEEN_WEIGHT = 5;
   const SEEN_WEIGHT = 1;
 
-  // Reset if all have been seen
   if (seenSet.size >= list.length) {
     seenSet.clear();
   }
@@ -44,8 +32,26 @@ export function pickWeighted(list, seenSet) {
     }
   }
 
-  // Fallback
   const last = list[list.length - 1];
   seenSet.add(key(last));
   return last;
+}
+
+export function getExcuseText(item) {
+  if (item == null) return '';
+  return typeof item === 'string' ? item : item.text ?? '';
+}
+
+/**
+ * Picks a weighted line that is not `excludeText` when any alternative exists.
+ * Fixes the “Next” button looking broken when the random draw matched the current card.
+ */
+export function pickDifferentWeighted(list, excludeText, seenSet) {
+  if (!Array.isArray(list) || list.length === 0) return '';
+  const ex = excludeText ?? '';
+  const candidates = list.filter((item) => getExcuseText(item) !== ex);
+  if (candidates.length === 0) {
+    return pickWeighted(list, seenSet);
+  }
+  return pickWeighted(candidates, seenSet);
 }

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Bogey Blamer",
+    "name": "Excuse Caddie",
     "slug": "app-golfexcuse",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#3D6B52"
+      "backgroundColor": "#508560"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,16 +19,16 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "buildNumber": "4"
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#3D6B52"
+        "backgroundColor": "#508560"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.dotsystems.appgolfexcuse",
-      "versionCode": 5,
+      "versionCode": 6,
       "playStoreUrl": "https://play.google.com/store/apps/details?id=com.dotsystems.appgolfexcuse",
       "permissions": [
         "android.permission.INTERNET",
@@ -41,9 +41,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font"
-    ],
+    "plugins": [],
     "extra": {
       "eas": {
         "projectId": "817260d8-54b3-4c01-9523-f4b328c72313"
