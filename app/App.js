@@ -9,7 +9,6 @@ import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import * as Updates from 'expo-updates';
 import { Accelerometer } from 'expo-sensors';
-import * as WebBrowser from 'expo-web-browser';
 import * as Clipboard from 'expo-clipboard';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -223,28 +222,6 @@ function AppContent() {
 
   const excuseNumber = getExcuseNumber(cardText);
   const shareUrl = excuseNumber ? `${CONFIG.WEB_URL}/${excuseNumber}` : CONFIG.WEB_URL;
-  const shareTextX = `"${cardText}" — my official ruling on that round.`;
-  const redditTitle = `"${cardText}" — Excuse Caddie ruling #${excuseNumber || ''}`.trim();
-
-  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextX)}&url=${encodeURIComponent(shareUrl)}`;
-  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(`"${cardText}"`)}`;
-  const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(redditTitle)}`;
-
-  // Open social share intents inside an in-app Safari View — sidesteps the
-  // iOS universal-link redirect that would otherwise yank the user into the
-  // Reddit/X/Facebook native app and drop the prefilled text params.
-  const openShareIntent = useCallback(async (url) => {
-    haptic('light');
-    try {
-      await WebBrowser.openBrowserAsync(url, {
-        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-        controlsColor: PALETTE.fairwayDeep,
-        toolbarColor: PALETTE.cream,
-      });
-    } catch {
-      Linking.openURL(url).catch(() => {});
-    }
-  }, [haptic]);
 
   // Download the excuse image once per excuse (cached on device) so
   // every subsequent share-tap is instant. Returns a local file:// URI
@@ -265,65 +242,44 @@ function AppContent() {
     }
   }, [excuseNumber]);
 
-  // Instagram → grab the 1080×1080 share image, copy URL to clipboard
-  // for the caption, then open the system share sheet so the user picks
-  // Instagram (Stories or Feed). Image attachment beats a bare URL because
-  // Instagram won't render link previews in posts at all.
-  const handleInstagramShare = useCallback(async () => {
+  // Single share entry point. Downloads the 1080×1080 square share
+  // image (works for both Stories and Feed posts on Instagram + still
+  // looks clean as a link preview in iMessage / X / Facebook / etc.)
+  // and routes through the system share sheet — the user picks the
+  // destination from there. URL goes on the clipboard so apps that
+  // can only ingest one item still let the user paste the link.
+  const handleShare = useCallback(async () => {
     if (copyTimeout.current) clearTimeout(copyTimeout.current);
     haptic('light');
-    try { await Clipboard.setStringAsync(shareUrl); } catch {}
+    const text = `"${cardText}" — Excuse Caddie\n${shareUrl}`;
+    try { await Clipboard.setStringAsync(text); } catch {}
 
     const fileUri = await ensureLocalImage('square');
-    if (!fileUri) {
-      try { await Linking.openURL('instagram://app'); }
-      catch { Linking.openURL('https://instagram.com').catch(() => {}); }
-      return;
-    }
     setCopied(true);
     copyTimeout.current = setTimeout(() => setCopied(false), CONFIG.COPY_RESET_MS);
-    try {
-      await Sharing.shareAsync(fileUri, {
-        mimeType: 'image/png',
-        UTI: 'public.png',
-        dialogTitle: 'Share to Instagram',
-      });
-    } catch {}
-  }, [shareUrl, haptic, ensureLocalImage]);
 
-  // Native share — pre-downloads the 1200×630 OG image and uses
-  // expo-sharing so the share sheet shows a real preview thumbnail
-  // instead of a bare URL. The deep-link URL is also placed on the
-  // clipboard so receiving apps that prefer text (or chat threads where
-  // images don't auto-render OG cards) can paste it as a follow-up.
-  const handleNativeShare = useCallback(async () => {
-    if (copyTimeout.current) clearTimeout(copyTimeout.current);
-    haptic('light');
-    try { await Clipboard.setStringAsync(shareUrl); } catch {}
-
-    const fileUri = await ensureLocalImage('og');
-    if (!fileUri) {
-      // Image fetch failed — fall back to URL-only share so the button
-      // never feels broken offline.
-      try {
-        if (Platform.OS === 'ios') {
-          await Share.share({ url: shareUrl }, { subject: `"${cardText}" — Excuse Caddie` });
-        } else {
-          await Share.share({ message: `"${cardText}" — Excuse Caddie\n${shareUrl}` });
-        }
-        setCopied(true);
-        copyTimeout.current = setTimeout(() => setCopied(false), CONFIG.COPY_RESET_MS);
-      } catch {}
-      return;
-    }
-    setCopied(true);
-    copyTimeout.current = setTimeout(() => setCopied(false), CONFIG.COPY_RESET_MS);
     try {
-      await Sharing.shareAsync(fileUri, {
-        mimeType: 'image/png',
-        UTI: 'public.png',
-        dialogTitle: `"${cardText}" — Excuse Caddie`,
-      });
+      if (Platform.OS === 'ios' && fileUri) {
+        // iOS treats {url, message} as two distinct activity items —
+        // the receiving app picks what it wants (image-capable apps
+        // get both, text-only apps get the message). The url field
+        // accepts a local file:// path for image attachments.
+        await Share.share({ url: fileUri, message: text });
+        return;
+      }
+      if (fileUri) {
+        // Android — Share.share doesn't accept file URIs reliably, so
+        // we use expo-sharing for the image. Text is on the clipboard.
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'image/png',
+          UTI: 'public.png',
+          dialogTitle: `"${cardText}" — Excuse Caddie`,
+        });
+        return;
+      }
+      // Image download failed — text-only share so the button never
+      // feels broken (e.g. on flaky networks).
+      await Share.share({ message: text });
     } catch {}
   }, [cardText, shareUrl, haptic, ensureLocalImage]);
 
@@ -384,15 +340,11 @@ function AppContent() {
         <CTAButton label={ctaLabel} onPress={handleGenerate} />
 
         <View style={$.shareRow}>
-          <SharePill bg={PALETTE.orange} label="Reddit" icon={<RedditIcon />} onPress={() => openShareIntent(redditUrl)} />
-          <SharePill bg={PALETTE.black} label="X" icon={<XIcon />} onPress={() => openShareIntent(xUrl)} />
-          <SharePill bg={PALETTE.blue} label="Facebook" icon={<FbIcon />} onPress={() => openShareIntent(fbUrl)} />
-          <SharePill bg={PALETTE.instagram} label="Instagram" icon={<InstagramIcon />} onPress={handleInstagramShare} />
           <SharePill
             bg={PALETTE.red}
-            label={copied ? 'Copied' : 'Share'}
+            label={copied ? 'Shared' : 'Share this ruling'}
             icon={copied ? <CheckIcon /> : <ShareIcon />}
-            onPress={handleNativeShare}
+            onPress={handleShare}
           />
         </View>
       </View>
@@ -659,27 +611,6 @@ function ThumbIcon({ color = '#fff', size = 16 }) {
 function ThumbsUpInline({ color = '#fff', size = 11 }) {
   return <ThumbIcon color={color} size={size} />;
 }
-function RedditIcon() {
-  return (
-    <Svg width={14} height={14} viewBox="0 0 24 24">
-      <Path fill="#fff" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
-    </Svg>
-  );
-}
-function XIcon() {
-  return (
-    <Svg width={12} height={12} viewBox="0 0 24 24">
-      <Path fill="#fff" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </Svg>
-  );
-}
-function FbIcon() {
-  return (
-    <Svg width={14} height={14} viewBox="0 0 24 24">
-      <Path fill="#fff" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-    </Svg>
-  );
-}
 function ShareIcon() {
   return (
     <Svg width={13} height={13} viewBox="0 0 24 24">
@@ -697,38 +628,6 @@ function CheckIcon() {
     </Svg>
   );
 }
-function InstagramIcon() {
-  return (
-    <Svg width={14} height={14} viewBox="0 0 24 24">
-      <Path
-        fill="none"
-        stroke="#fff"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm9 4.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"
-      />
-    </Svg>
-  );
-}
-function GitHubIcon() {
-  return (
-    <Svg width={13} height={13} viewBox="0 0 24 24">
-      <Path fill="rgba(245,241,232,0.85)" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-    </Svg>
-  );
-}
-function CoffeeIcon() {
-  return (
-    <Svg width={13} height={13} viewBox="0 0 24 24">
-      <Path
-        d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 2v2M10 2v2M14 2v2"
-        stroke={PALETTE.yellow} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" fill="none"
-      />
-    </Svg>
-  );
-}
-
 // ── Styles ─────────────────────────────────────────────────────────────
 const $ = StyleSheet.create({
   root: {
