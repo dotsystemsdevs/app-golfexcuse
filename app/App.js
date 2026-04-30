@@ -672,34 +672,35 @@ const $ = StyleSheet.create({
   tickerVoteNum: { color: 'rgba(245,241,232,0.7)', fontSize: 12, fontFamily: F.medium, fontVariant: ['tabular-nums'] },
   tickerDot: { color: 'rgba(245,241,232,0.2)', fontSize: 14, paddingHorizontal: 4 },
 
-  // Main column
+  // Main column — anchored near the top so logo + wordmark sit close to
+  // the ticker instead of floating mid-screen.
   main: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 28,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     maxWidth: 640,
     alignSelf: 'center',
     width: '100%',
   },
 
   logo: {
-    width: 64,
-    height: 64,
-    marginBottom: 10,
+    width: 56,
+    height: 56,
+    marginBottom: 8,
   },
   wordmark: {
-    fontSize: 36,
-    lineHeight: 36,
+    fontSize: 34,
+    lineHeight: 34,
     color: PALETTE.cream,
-    letterSpacing: -1.2,
+    letterSpacing: -1.1,
     textAlign: 'center',
     fontFamily: F.extra,
   },
 
   counterRow: {
-    marginTop: 14,
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 8,
@@ -721,7 +722,7 @@ const $ = StyleSheet.create({
   // Excuse panel
   panelWrap: {
     width: '100%',
-    marginTop: 22,
+    marginTop: 18,
     position: 'relative',
   },
   panel: {
@@ -774,7 +775,7 @@ const $ = StyleSheet.create({
 
   // CTA — two-layer to fake the inset bottom shadow
   ctaOuter: {
-    marginTop: 22,
+    marginTop: 18,
     width: '100%',
     backgroundColor: PALETTE.yellowDark,
     borderRadius: 14,
@@ -807,7 +808,7 @@ const $ = StyleSheet.create({
 
   // Share row
   shareRow: {
-    marginTop: 20,
+    marginTop: 16,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
