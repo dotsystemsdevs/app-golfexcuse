@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
 import * as Updates from 'expo-updates';
 import { Accelerometer } from 'expo-sensors';
+import * as WebBrowser from 'expo-web-browser';
 import {
   useFonts,
   Inter_400Regular,
@@ -226,17 +227,40 @@ function AppContent() {
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(`"${cardText}"`)}`;
   const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(redditTitle)}`;
 
-  const openUrl = (url) => Linking.openURL(url).catch(() => {});
+  // Open social share intents inside an in-app Safari View — sidesteps the
+  // iOS universal-link redirect that would otherwise yank the user into the
+  // Reddit/X/Facebook native app and drop the prefilled text params.
+  const openShareIntent = useCallback(async (url) => {
+    haptic('light');
+    try {
+      await WebBrowser.openBrowserAsync(url, {
+        presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+        controlsColor: PALETTE.fairwayDeep,
+        toolbarColor: PALETTE.cream,
+      });
+    } catch {
+      Linking.openURL(url).catch(() => {});
+    }
+  }, [haptic]);
 
+  // Platform-specific native share — iOS treats {url, message} as TWO items
+  // (some receivers render both = duplicate URL), so we pass only `url` on
+  // iOS (sheet auto-builds a rich preview from the page's OG tags) and let
+  // Android keep everything in `message` since it ignores the url field.
   const handleNativeShare = useCallback(async () => {
     if (copyTimeout.current) clearTimeout(copyTimeout.current);
     haptic('light');
     try {
-      await Share.share({
-        message: `"${cardText}" — Excuse Caddie ${shareUrl}`,
-        url: shareUrl,
-        title: `"${cardText}" — Excuse Caddie`,
-      });
+      if (Platform.OS === 'ios') {
+        await Share.share(
+          { url: shareUrl },
+          { subject: `"${cardText}" — Excuse Caddie` }
+        );
+      } else {
+        await Share.share({
+          message: `"${cardText}" — Excuse Caddie\n${shareUrl}`,
+        });
+      }
       setCopied(true);
       copyTimeout.current = setTimeout(() => setCopied(false), CONFIG.COPY_RESET_MS);
     } catch {}
@@ -299,9 +323,9 @@ function AppContent() {
         <CTAButton label={ctaLabel} onPress={handleGenerate} />
 
         <View style={$.shareRow}>
-          <SharePill bg={PALETTE.orange} label="Reddit" icon={<RedditIcon />} onPress={() => openUrl(redditUrl)} />
-          <SharePill bg={PALETTE.black} label="X" icon={<XIcon />} onPress={() => openUrl(xUrl)} />
-          <SharePill bg={PALETTE.blue} label="Facebook" icon={<FbIcon />} onPress={() => openUrl(fbUrl)} />
+          <SharePill bg={PALETTE.orange} label="Reddit" icon={<RedditIcon />} onPress={() => openShareIntent(redditUrl)} />
+          <SharePill bg={PALETTE.black} label="X" icon={<XIcon />} onPress={() => openShareIntent(xUrl)} />
+          <SharePill bg={PALETTE.blue} label="Facebook" icon={<FbIcon />} onPress={() => openShareIntent(fbUrl)} />
           <SharePill
             bg={PALETTE.red}
             label={copied ? 'Pocketed' : 'Share'}
